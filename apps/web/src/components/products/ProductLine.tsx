@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import { useTranslations } from "use-intl";
 import type { Product } from "@/types/api";
 import { StatusDot, StatusLabel } from "./ProductStatus";
 import { ProductThumb } from "./ProductThumb";
@@ -10,6 +13,7 @@ type ProductLineProps = {
 };
 
 export function ProductLine({ product, onDelete, as: Tag = "li" }: ProductLineProps) {
+  const t = useTranslations("products");
   const isStatic = !onDelete;
 
   return (
@@ -29,7 +33,7 @@ export function ProductLine({ product, onDelete, as: Tag = "li" }: ProductLinePr
             <button
               type="button"
               className="icon-button"
-              aria-label={`Удалить продукт ${product.title}`}
+              aria-label={t("deleteLabel", { title: product.title })}
               onClick={() => onDelete(product)}
             >
               <i className="bi bi-trash3-fill" aria-hidden="true" />

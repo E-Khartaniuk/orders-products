@@ -1,12 +1,18 @@
+import { createTranslator } from "use-intl";
 import { describe, expect, it } from "vitest";
+import ru from "@/i18n/messages/ru.json";
 import {
-  orderFormSchema,
-  productFormSchema,
+  createOrderFormSchema,
+  createProductFormSchema,
   toCreateOrderPayload,
   toCreateProductPayload,
   todayInputValue,
   type ProductFormValues,
 } from "./schemas";
+
+const t = createTranslator({ locale: "ru", messages: ru, namespace: "validation" });
+const orderFormSchema = createOrderFormSchema(t);
+const productFormSchema = createProductFormSchema(t);
 
 const validProduct: ProductFormValues = {
   serialNumber: "SN-12.3456789",

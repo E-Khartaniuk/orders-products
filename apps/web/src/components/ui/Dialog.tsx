@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "use-intl";
 
 type DialogProps = {
   open: boolean;
@@ -24,6 +25,7 @@ export function Dialog({
   onClose,
   children,
 }: DialogProps) {
+  const t = useTranslations("common");
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const lockedRef = useRef(locked);
@@ -87,7 +89,7 @@ export function Dialog({
             <button
               type="button"
               className="dialog__close"
-              aria-label="Закрыть"
+              aria-label={t("close")}
               onClick={onClose}
               disabled={locked}
             >
@@ -112,16 +114,12 @@ type DialogFooterProps = {
   children: ReactNode;
 };
 
-export function DialogFooter({
-  cancelLabel = "Отменить",
-  disabled,
-  onCancel,
-  children,
-}: DialogFooterProps) {
+export function DialogFooter({ cancelLabel, disabled, onCancel, children }: DialogFooterProps) {
+  const t = useTranslations("common");
   return (
     <div className="dialog__footer">
       <button type="button" className="dialog__cancel" onClick={onCancel} disabled={disabled}>
-        {cancelLabel}
+        {cancelLabel ?? t("cancel")}
       </button>
       {children}
     </div>

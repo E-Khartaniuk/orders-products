@@ -4,7 +4,8 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { PRODUCT_FORMS, formatLongDate, formatMonthOfYear, pluralize } from "@/lib/format";
+import { useLocale, useTranslations } from "use-intl";
+import { formatLongDate, formatMonthOfYear } from "@/lib/format";
 import type { OrderSummary } from "@/types/api";
 import { Price } from "./Price";
 
@@ -17,6 +18,8 @@ type OrderRowProps = {
 
 export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
   const router = useRouter();
+  const t = useTranslations("orders");
+  const locale = useLocale();
   const href = `/orders/${order.id}`;
 
   const open = () => router.push(href, { scroll: false });
@@ -59,13 +62,13 @@ export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
       <div className="order-row__count">
         <span className="order-row__count-value">{order.productsCount}</span>
         <span className="order-row__count-label">
-          {pluralize(order.productsCount, PRODUCT_FORMS)}
+          {t("productsLabel", { count: order.productsCount })}
         </span>
       </div>
       <div className="order-row__date">
         <span className="order-row__caption">{formatMonthOfYear(order.date)}</span>
         <time className="order-row__value" dateTime={order.date}>
-          {formatLongDate(order.date)}
+          {formatLongDate(order.date, locale)}
         </time>
       </div>
       <div className="order-row__sum">
@@ -75,7 +78,7 @@ export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
         <button
           type="button"
           className="icon-button"
-          aria-label={`Удалить приход ${order.title}`}
+          aria-label={t("deleteLabel", { title: order.title })}
           onClick={onDeleteClick}
         >
           <i className="bi bi-trash3-fill" aria-hidden="true" />

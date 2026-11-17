@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     default: "Inventory",
     template: "%s · Inventory",
   },
-  description: "Учёт приходов и продуктов",
+  description: "Orders & Products inventory",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,3 +1,6 @@
+"use client";
+
+import { useLocale } from "use-intl";
 import { currencyLabel, formatAmount, splitPrices } from "@/lib/format";
 import type { Money } from "@/types/api";
 
@@ -7,6 +10,7 @@ type PriceProps = {
 };
 
 export function Price({ prices, blockClass }: PriceProps) {
+  const locale = useLocale();
   const { primary, secondary } = splitPrices(prices);
 
   if (!primary) {
@@ -17,11 +21,11 @@ export function Price({ prices, blockClass }: PriceProps) {
     <>
       {secondary && (
         <span className={`${blockClass}__caption`}>
-          {formatAmount(secondary.value)} {currencyLabel(secondary.symbol)}
+          {formatAmount(secondary.value, locale)} {currencyLabel(secondary.symbol)}
         </span>
       )}
       <span className={`${blockClass}__value`}>
-        {formatAmount(primary.value)}{" "}
+        {formatAmount(primary.value, locale)}{" "}
         <span className={`${blockClass}__currency`}>{currencyLabel(primary.symbol)}</span>
       </span>
     </>

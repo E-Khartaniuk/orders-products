@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "use-intl";
 
 export function Logo() {
+  const t = useTranslations("header");
   return (
-    <Link href="/orders" className="top-menu__logo" aria-label="Inventory — на главную">
+    <Link href="/orders" className="top-menu__logo" aria-label={t("home")}>
       <svg className="top-menu__logo-icon" viewBox="0 0 38 44" aria-hidden="true">
         <path d="M19 0 38 6v14c0 12-8 20.5-19 24C8 40.5 0 32 0 20V6L19 0z" fill="#7cb342" />
         <path d="M19 3 35 8.2V20c0 10.2-6.7 17.6-16 20.8V3z" fill="#689f38" />

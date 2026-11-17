@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale, useTranslations } from "use-intl";
 import { Price } from "@/components/orders/Price";
 import { formatLongDate, formatMonthOfYear, formatNumericDate } from "@/lib/format";
 import type { Product } from "@/types/api";
@@ -11,6 +14,9 @@ type ProductRowProps = {
 };
 
 export function ProductRow({ product, onDelete }: ProductRowProps) {
+  const t = useTranslations("products");
+  const locale = useLocale();
+
   return (
     <div className="product-row">
       <StatusDot status={product.status} />
@@ -23,12 +29,12 @@ export function ProductRow({ product, onDelete }: ProductRowProps) {
       </div>
       <StatusLabel status={product.status} />
       <div className="product-row__guarantee">
-        <span className="product-row__guarantee-label">с</span>
+        <span className="product-row__guarantee-label">{t("from")}</span>
         <time dateTime={product.guarantee.start}>{formatNumericDate(product.guarantee.start)}</time>
-        <span className="product-row__guarantee-label">по</span>
+        <span className="product-row__guarantee-label">{t("to")}</span>
         <time dateTime={product.guarantee.end}>{formatNumericDate(product.guarantee.end)}</time>
       </div>
-      <span>{product.isNew ? "новый" : "Б / У"}</span>
+      <span>{product.isNew ? t("new") : t("used")}</span>
       <div className="product-row__price">
         <Price prices={product.prices} blockClass="product-row" />
       </div>
@@ -53,12 +59,12 @@ export function ProductRow({ product, onDelete }: ProductRowProps) {
       </div>
       <div className="product-row__date">
         <span className="product-row__caption">{formatMonthOfYear(product.date)}</span>
-        <time dateTime={product.date}>{formatLongDate(product.date)}</time>
+        <time dateTime={product.date}>{formatLongDate(product.date, locale)}</time>
       </div>
       <button
         type="button"
         className="icon-button"
-        aria-label={`Удалить продукт ${product.title}`}
+        aria-label={t("deleteLabel", { title: product.title })}
         onClick={() => onDelete(product)}
       >
         <i className="bi bi-trash3-fill" aria-hidden="true" />

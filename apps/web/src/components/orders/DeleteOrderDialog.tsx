@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useLocale, useTranslations } from "use-intl";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { PRODUCT_FORMS, formatLongDate, pluralize } from "@/lib/format";
+import { formatLongDate } from "@/lib/format";
 import { useDeleteOrderMutation } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
 
@@ -14,6 +15,9 @@ type DeleteOrderDialogProps = {
 
 export function DeleteOrderDialog({ order, onClose, onDeleted }: DeleteOrderDialogProps) {
   const [deleteOrder, { isLoading }] = useDeleteOrderMutation();
+  const t = useTranslations("orders");
+  const tc = useTranslations("common");
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
 
   const close = useCallback(() => {
@@ -28,15 +32,15 @@ export function DeleteOrderDialog({ order, onClose, onDeleted }: DeleteOrderDial
       onDeleted(order);
       close();
     } catch {
-      setError("Не удалось удалить приход. Попробуйте ещё раз.");
+      setError(t("delete.error"));
     }
   };
 
   return (
     <ConfirmDialog
       open={order !== null}
-      title="Вы уверены, что хотите удалить этот приход?"
-      confirmLabel="Удалить"
+      title={t("delete.title")}
+      confirmLabel={tc("delete")}
       pending={isLoading}
       error={error}
       onConfirm={confirm}
@@ -51,8 +55,8 @@ export function DeleteOrderDialog({ order, onClose, onDeleted }: DeleteOrderDial
           <div className="product-line__info">
             <span className="product-line__title">{order.title}</span>
             <div className="product-line__serial">
-              {order.productsCount} {pluralize(order.productsCount, PRODUCT_FORMS).toLowerCase()} ·{" "}
-              {formatLongDate(order.date)}
+              {t("productsCount", { count: order.productsCount })} ·{" "}
+              {formatLongDate(order.date, locale)}
             </div>
           </div>
         </div>

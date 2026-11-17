@@ -4,7 +4,9 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
+import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useDocumentTitle } from "@/i18n/use-document-title";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
@@ -16,6 +18,8 @@ import { OrderRow } from "./OrderRow";
 
 export function OrdersView({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const t = useTranslations("orders");
+  useDocumentTitle(t("title"));
   const params = useParams<{ id?: string }>();
   const selectedId = params.id ? Number(params.id) : null;
 
@@ -39,27 +43,18 @@ export function OrdersView({ children }: { children: ReactNode }) {
   return (
     <>
       <PageHeader
-        title="Приходы"
+        title={t("title")}
         total={data?.total ?? 0}
-        addLabel="Добавить приход"
+        addLabel={t("add")}
         onAdd={() => setCreateOpen(true)}
       />
 
       <div className={clsx("orders", hasDetails && "orders--with-details")}>
         <div>
           {isLoading && <SkeletonList count={4} height={72} />}
-          {isError && (
-            <StateMessage
-              variant="error"
-              message="Не удалось загрузить приходы. Проверьте, что API запущен."
-              onRetry={refetch}
-            />
-          )}
+          {isError && <StateMessage variant="error" message={t("loadError")} onRetry={refetch} />}
           {data && data.items.length === 0 && (
-            <StateMessage
-              variant="empty"
-              message={search ? "По вашему запросу ничего не найдено" : "Приходов пока нет"}
-            />
+            <StateMessage variant="empty" message={search ? t("nothingFound") : t("empty")} />
           )}
           {data && data.items.length > 0 && (
             <motion.ul className="orders__list" layout>
@@ -95,7 +90,7 @@ export function OrdersView({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              aria-label="Детали прихода"
+              aria-label={t("details")}
             >
               {children}
             </motion.section>

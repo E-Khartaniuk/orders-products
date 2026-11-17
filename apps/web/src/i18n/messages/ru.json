@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "orders": "Приходы",
+    "products": "Продукты",
+    "login": "Вход",
+    "register": "Регистрация"
+  },
+  "common": {
+    "loading": "Загрузка…",
+    "retry": "Повторить",
+    "cancel": "Отменить",
+    "close": "Закрыть",
+    "delete": "Удалить",
+    "deleting": "Удаление…",
+    "saving": "Сохранение…",
+    "skipToContent": "Перейти к содержимому",
+    "none": "—"
+  },
+  "nav": {
+    "label": "Основная навигация",
+    "orders": "Приход",
+    "products": "Продукты",
+    "avatar": "Аватар пользователя",
+    "settings": "Настройки профиля"
+  },
+  "header": {
+    "home": "Inventory — на главную",
+    "search": "Поиск",
+    "online": "Онлайн:",
+    "onlineHint": "Активные вкладки приложения",
+    "logout": "Выйти",
+    "language": "Язык интерфейса"
+  },
+  "orders": {
+    "title": "Приходы",
+    "add": "Добавить приход",
+    "loadError": "Не удалось загрузить приходы. Проверьте, что API запущен.",
+    "nothingFound": "По вашему запросу ничего не найдено",
+    "empty": "Приходов пока нет",
+    "details": "Детали прихода",
+    "productsLabel": "{count, plural, one {Продукт} few {Продукта} other {Продуктов}}",
+    "productsCount": "{count} {count, plural, one {продукт} few {продукта} other {продуктов}}",
+    "deleteLabel": "Удалить приход {title}",
+    "notFound": "Приход не найден",
+    "loadOneError": "Не удалось загрузить приход",
+    "addProduct": "Добавить продукт",
+    "noProducts": "В этом приходе пока нет продуктов",
+    "create": {
+      "title": "Новый приход",
+      "name": "Название",
+      "date": "Дата прихода",
+      "description": "Описание",
+      "descriptionHint": "Необязательно, до 2000 символов",
+      "submit": "Создать",
+      "error": "Не удалось создать приход"
+    },
+    "delete": {
+      "title": "Вы уверены, что хотите удалить этот приход?",
+      "error": "Не удалось удалить приход. Попробуйте ещё раз."
+    }
+  },
+  "products": {
+    "title": "Продукты",
+    "loadError": "Не удалось загрузить продукты. Проверьте, что API запущен.",
+    "emptyFiltered": "Нет продуктов, подходящих под фильтр",
+    "empty": "Продуктов пока нет",
+    "typeFilter": "Тип:",
+    "allTypes": "Все типы",
+    "from": "с",
+    "to": "по",
+    "new": "новый",
+    "used": "Б / У",
+    "deleteLabel": "Удалить продукт {title}",
+    "create": {
+      "title": "Новый продукт",
+      "titleFor": "Новый продукт · {order}",
+      "name": "Название",
+      "serial": "Серийный номер",
+      "serialHint": "Например, SN-12.3456789",
+      "type": "Тип",
+      "specification": "Спецификация",
+      "status": "Статус",
+      "condition": "Состояние",
+      "conditionNew": "Новый",
+      "conditionUsed": "Б / У",
+      "guaranteeStart": "Гарантия с",
+      "guaranteeEnd": "Гарантия по",
+      "priceUsd": "Цена, $",
+      "priceUah": "Цена, UAH",
+      "submit": "Добавить",
+      "error": "Не удалось добавить продукт",
+      "duplicateSerial": "Продукт с таким серийным номером уже существует"
+    },
+    "delete": {
+      "title": "Вы уверены, что хотите удалить этот продукт?",
+      "error": "Не удалось удалить продукт. Попробуйте ещё раз."
+    }
+  },
+  "status": {
+    "FREE": "Свободен",
+    "IN_REPAIR": "В ремонте",
+    "IN_USE": "Используется"
+  },
+  "auth": {
+    "checkingSession": "Проверка сессии…",
+    "email": "Email",
+    "password": "Пароль",
+    "login": {
+      "title": "Вход",
+      "subtitle": "Войдите, чтобы работать с приходами и продуктами",
+      "noAccount": "Нет аккаунта?",
+      "toRegister": "Зарегистрироваться",
+      "submit": "Войти",
+      "submitting": "Вход…",
+      "error": "Не удалось войти",
+      "invalidCredentials": "Неверный email или пароль",
+      "tooManyAttempts": "Слишком много попыток. Попробуйте позже"
+    },
+    "register": {
+      "title": "Регистрация",
+      "subtitle": "Создайте аккаунт, чтобы вести учёт",
+      "haveAccount": "Уже есть аккаунт?",
+      "toLogin": "Войти",
+      "name": "Имя",
+      "passwordHint": "Минимум 8 символов, буквы и цифры",
+      "confirmPassword": "Повторите пароль",
+      "submit": "Создать аккаунт",
+      "submitting": "Создание…",
+      "error": "Не удалось зарегистрироваться",
+      "duplicateEmail": "Пользователь с таким email уже существует"
+    }
+  },
+  "validation": {
+    "maxChars": "Не более {max} символов",
+    "minChars": "Не короче {min} символов",
+    "invalidDate": "Некорректная дата",
+    "orderTitleRequired": "Введите название прихода",
+    "orderDateRequired": "Укажите дату прихода",
+    "titleRequired": "Введите название",
+    "serialRequired": "Введите серийный номер",
+    "serialFormat": "Только латиница, цифры, точка, дефис и подчёркивание",
+    "typeRequired": "Укажите тип",
+    "specificationRequired": "Укажите спецификацию",
+    "guaranteeStartRequired": "Укажите начало гарантии",
+    "guaranteeEndRequired": "Укажите окончание гарантии",
+    "guaranteeOrder": "Окончание гарантии не может быть раньше начала",
+    "priceRequired": "Укажите цену",
+    "priceFormat": "Формат: 1234.56",
+    "emailRequired": "Введите email",
+    "emailInvalid": "Некорректный email",
+    "passwordRequired": "Введите пароль",
+    "passwordLetter": "Добавьте хотя бы одну букву",
+    "passwordDigit": "Добавьте хотя бы одну цифру",
+    "confirmRequired": "Повторите пароль",
+    "passwordsMismatch": "Пароли не совпадают"
+  },
+  "errors": {
+    "generic": "Что-то пошло не так",
+    "network": "Нет соединения с сервером. Проверьте, что API запущен."
+  }
+}

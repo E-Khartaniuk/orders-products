@@ -1,9 +1,11 @@
 "use client";
 
+import { useTranslations } from "use-intl";
 import { useAppSelector } from "@/store";
 import { useLogoutMutation } from "@/store/api";
 
 export function UserMenu() {
+  const t = useTranslations("header");
   const user = useAppSelector((state) => state.auth.user);
   const [logout, { isLoading }] = useLogoutMutation();
 
@@ -19,8 +21,8 @@ export function UserMenu() {
         className="top-menu__logout"
         onClick={() => logout()}
         disabled={isLoading}
-        aria-label="Выйти"
-        title="Выйти"
+        aria-label={t("logout")}
+        title={t("logout")}
       >
         <i className="bi bi-box-arrow-right" aria-hidden="true" />
       </button>

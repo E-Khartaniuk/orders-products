@@ -1,36 +1,46 @@
 import { z } from "zod";
+import type { ValidationT } from "./validation";
 
-const emailField = z
-  .string()
-  .trim()
-  .min(1, { message: "Введите email", abort: true })
-  .pipe(z.email("Некорректный email"));
+const emailField = (t: ValidationT) =>
+  z
+    .string()
+    .trim()
+    .min(1, { message: t("emailRequired"), abort: true })
+    .pipe(z.email(t("emailInvalid")));
 
-export const loginFormSchema = z.object({
-  email: emailField,
-  password: z.string().min(1, "Введите пароль"),
-});
-
-export type LoginFormValues = z.input<typeof loginFormSchema>;
-
-export const registerFormSchema = z
-  .object({
-    name: z.string().trim().min(2, "Не короче 2 символов").max(120, "Не более 120 символов"),
-    email: emailField,
-    password: z
-      .string()
-      .min(8, { message: "Не короче 8 символов", abort: true })
-      .max(128, "Не более 128 символов")
-      .regex(/[A-Za-zА-Яа-я]/, "Добавьте хотя бы одну букву")
-      .regex(/\d/, "Добавьте хотя бы одну цифру"),
-    confirmPassword: z.string().min(1, "Повторите пароль"),
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Пароли не совпадают",
+export const createLoginFormSchema = (t: ValidationT) =>
+  z.object({
+    email: emailField(t),
+    password: z.string().min(1, t("passwordRequired")),
   });
 
-export type RegisterFormValues = z.input<typeof registerFormSchema>;
+export type LoginFormSchema = ReturnType<typeof createLoginFormSchema>;
+export type LoginFormValues = z.input<LoginFormSchema>;
+
+export const createRegisterFormSchema = (t: ValidationT) =>
+  z
+    .object({
+      name: z
+        .string()
+        .trim()
+        .min(2, t("minChars", { min: 2 }))
+        .max(120, t("maxChars", { max: 120 })),
+      email: emailField(t),
+      password: z
+        .string()
+        .min(8, { message: t("minChars", { min: 8 }), abort: true })
+        .max(128, t("maxChars", { max: 128 }))
+        .regex(/[A-Za-zА-Яа-я]/, t("passwordLetter"))
+        .regex(/\d/, t("passwordDigit")),
+      confirmPassword: z.string().min(1, t("confirmRequired")),
+    })
+    .refine((values) => values.password === values.confirmPassword, {
+      path: ["confirmPassword"],
+      message: t("passwordsMismatch"),
+    });
+
+export type RegisterFormSchema = ReturnType<typeof createRegisterFormSchema>;
+export type RegisterFormValues = z.input<RegisterFormSchema>;
 
 export function safeRedirect(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) return "/orders";

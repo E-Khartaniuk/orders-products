@@ -2,10 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { useTranslations } from "use-intl";
 import { Splash } from "@/components/ui/Splash";
 import { useAppSelector } from "@/store";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
+  const t = useTranslations("auth");
   const status = useAppSelector((state) => state.auth.status);
   const router = useRouter();
   const pathname = usePathname();
@@ -16,7 +18,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     }
   }, [status, router, pathname]);
 
-  if (status !== "authenticated") return <Splash label="Проверка сессии…" />;
+  if (status !== "authenticated") return <Splash label={t("checkingSession")} />;
 
   return <>{children}</>;
 }
