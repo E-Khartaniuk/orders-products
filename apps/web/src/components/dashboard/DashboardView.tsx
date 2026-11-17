@@ -1,14 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
 import { useLocale, useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
 import { useDocumentTitle } from "@/i18n/use-document-title";
 import { formatAmount } from "@/lib/format";
-import { computeStats } from "@/lib/stats";
 import { useGetOrdersQuery, useGetProductsQuery } from "@/store/api";
+import { useStatsWorker } from "@/workers/use-stats-worker";
 import { ChartCard } from "./ChartCard";
 
 const chartFallback = () => <div className="skeleton chart-card__placeholder" />;
@@ -34,11 +33,7 @@ export function DashboardView() {
 
   const orders = useGetOrdersQuery();
   const products = useGetProductsQuery();
-  const stats = useMemo(
-    () =>
-      orders.data && products.data ? computeStats(orders.data.items, products.data.items) : null,
-    [orders.data, products.data],
-  );
+  const stats = useStatsWorker(orders.data?.items, products.data?.items);
 
   const isError = orders.isError || products.isError;
   const retry = () => {
