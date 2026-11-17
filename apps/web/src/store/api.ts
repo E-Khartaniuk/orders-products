@@ -1,4 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
+import {
+  ORDER_DETAILS_QUERY,
+  graphqlErrorToFetchError,
+  graphqlRequest,
+  normalizeOrderDetails,
+  type OrderDetailsResponse,
+} from "@/lib/graphql";
 import type { CreateOrderPayload, CreateProductPayload } from "@/lib/schemas";
 import type {
   AuthResponse,
@@ -55,7 +62,23 @@ export const api = createApi({
       ],
     }),
     getOrder: build.query<OrderDetails, number>({
-      query: (id) => `/orders/${id}`,
+      async queryFn(id, _api, _extra, baseQuery) {
+        const result = await baseQuery(graphqlRequest(ORDER_DETAILS_QUERY, { id: String(id) }));
+        if (result.error) return { error: result.error };
+
+        const body = result.data as OrderDetailsResponse;
+        if (body.errors?.length) return { error: graphqlErrorToFetchError(body.errors[0]) };
+        if (!body.data?.order) {
+          return {
+            error: graphqlErrorToFetchError({
+              message: `Order with id ${id} not found`,
+              extensions: { code: "NOT_FOUND" },
+            }),
+          };
+        }
+
+        return { data: normalizeOrderDetails(body.data.order) };
+      },
       providesTags: (_result, _error, id) => [{ type: "Order", id }],
     }),
     createOrder: build.mutation<OrderSummary, CreateOrderPayload>({

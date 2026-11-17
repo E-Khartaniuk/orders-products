@@ -19,6 +19,22 @@ export async function listProducts(query: ListProductsQuery) {
   return products.map(toProductDto);
 }
 
+export async function listProductsByOrderIds(orderIds: readonly number[]) {
+  const products = await prisma.product.findMany({
+    where: { orderId: { in: [...orderIds] } },
+    include: productInclude,
+    orderBy: { id: "asc" },
+  });
+
+  const byOrder = new Map<number, ReturnType<typeof toProductDto>[]>();
+  for (const product of products) {
+    const dto = toProductDto(product);
+    byOrder.set(dto.order.id, [...(byOrder.get(dto.order.id) ?? []), dto]);
+  }
+
+  return orderIds.map((id) => byOrder.get(id) ?? []);
+}
+
 export async function listProductTypes() {
   const rows = await prisma.product.findMany({
     distinct: ["type"],

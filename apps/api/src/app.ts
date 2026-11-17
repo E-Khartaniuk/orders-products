@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import { config } from "./config.js";
 import { prisma } from "./db.js";
+import { createGraphqlMiddleware } from "./graphql/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { requireAuth } from "./middleware/require-auth.js";
 import { authRouter } from "./modules/auth/auth.router.js";
@@ -15,7 +16,12 @@ export function createApp() {
 
   if (config.NODE_ENV === "production") app.set("trust proxy", 1);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: config.NODE_ENV === "production" ? undefined : false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
   app.use(cors({ origin: config.CORS_ORIGIN, credentials: true }));
   app.use(express.json());
   app.use(cookieParser());
@@ -32,6 +38,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/orders", requireAuth, ordersRouter);
   app.use("/api/products", requireAuth, productsRouter);
+  app.use("/api/graphql", createGraphqlMiddleware());
 
   app.use(notFoundHandler);
   app.use(errorHandler);
