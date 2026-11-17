@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcryptjs";
 import { prisma } from "../src/db.js";
 
 const PRODUCT_TYPES = [
@@ -11,6 +12,8 @@ const PRODUCT_TYPES = [
 const STATUSES = ["FREE", "IN_REPAIR", "IN_USE"] as const;
 const USD_TO_UAH = 41.5;
 const ORDERS_COUNT = 25;
+const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? "demo@inventory.local";
+const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? "demo12345";
 
 async function main() {
   faker.seed(42);
@@ -19,7 +22,16 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.order.deleteMany();
   await prisma.productGroup.deleteMany();
+  await prisma.refreshSession.deleteMany();
   await prisma.user.deleteMany();
+
+  await prisma.user.create({
+    data: {
+      email: DEMO_EMAIL,
+      name: "Demo User",
+      passwordHash: await bcrypt.hash(DEMO_PASSWORD, 10),
+    },
+  });
 
   const groups = await Promise.all(
     Array.from({ length: 5 }, (_, i) =>
@@ -32,7 +44,7 @@ async function main() {
       prisma.user.create({
         data: {
           email: faker.internet.email().toLowerCase(),
-          passwordHash: "seed-only",
+          passwordHash: "!disabled",
           name: faker.person.fullName(),
           avatarUrl: faker.image.avatar(),
         },

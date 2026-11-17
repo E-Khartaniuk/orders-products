@@ -1,13 +1,52 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_URL } from "@/lib/config";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import type { CreateOrderPayload, CreateProductPayload } from "@/lib/schemas";
-import type { ListResponse, OrderDetails, OrderSummary, Product, ProductsQuery } from "@/types/api";
+import type {
+  AuthResponse,
+  ListResponse,
+  LoginPayload,
+  OrderDetails,
+  OrderSummary,
+  Product,
+  ProductsQuery,
+  RegisterPayload,
+} from "@/types/api";
+import { credentialsReceived, loggedOut } from "./auth-slice";
+import { baseQueryWithReauth } from "./base-query";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: `${API_URL}/api`, credentials: "include" }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Order", "Product"],
   endpoints: (build) => ({
+    login: build.mutation<AuthResponse, LoginPayload>({
+      query: (body) => ({ url: "/auth/login", method: "POST", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(credentialsReceived(data));
+      },
+    }),
+    register: build.mutation<AuthResponse, RegisterPayload>({
+      query: (body) => ({ url: "/auth/register", method: "POST", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(credentialsReceived(data));
+      },
+    }),
+    restoreSession: build.mutation<AuthResponse, void>({
+      query: () => ({ url: "/auth/refresh", method: "POST" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        dispatch(data ? credentialsReceived(data) : loggedOut());
+      },
+    }),
+    logout: build.mutation<void, void>({
+      query: () => ({ url: "/auth/logout", method: "POST" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        await queryFulfilled.catch(() => undefined);
+        dispatch(loggedOut());
+        dispatch(api.util.resetApiState());
+      },
+    }),
     getOrders: build.query<ListResponse<OrderSummary>, { search?: string } | void>({
       query: (params) => ({ url: "/orders", params: params ?? undefined }),
       providesTags: (result) => [
@@ -73,4 +112,8 @@ export const {
   useGetProductTypesQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
+  useLoginMutation,
+  useRegisterMutation,
+  useRestoreSessionMutation,
+  useLogoutMutation,
 } = api;

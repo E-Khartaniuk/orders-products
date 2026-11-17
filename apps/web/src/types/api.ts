@@ -44,6 +44,22 @@ export type ListResponse<T> = {
   total: number;
 };
 
+export type User = {
+  id: number;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+};
+
+export type AuthResponse = {
+  user: User;
+  accessToken: string;
+};
+
+export type LoginPayload = { email: string; password: string };
+
+export type RegisterPayload = LoginPayload & { name: string };
+
 export type ProductsQuery = {
   type?: string;
   search?: string;
