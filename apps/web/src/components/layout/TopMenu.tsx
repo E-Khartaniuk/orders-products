@@ -1,4 +1,5 @@
 import { Clock } from "./Clock";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import { Logo } from "./Logo";
 import { SearchField } from "./SearchField";
 import { SessionsCounter } from "./SessionsCounter";
@@ -13,6 +14,7 @@ export function TopMenu() {
         <div className="top-menu__meta">
           <SessionsCounter />
           <Clock />
+          <LocaleSwitcher />
           <UserMenu />
         </div>
       </div>

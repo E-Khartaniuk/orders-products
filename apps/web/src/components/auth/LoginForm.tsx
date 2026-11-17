@@ -3,11 +3,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "use-intl";
 import type { z } from "zod";
 import { FormField, fieldA11y } from "@/components/ui/FormField";
 import { Splash } from "@/components/ui/Splash";
-import { parseApiError } from "@/lib/api-error";
-import { loginFormSchema, type LoginFormValues } from "@/lib/auth-schemas";
+import { useDocumentTitle } from "@/i18n/use-document-title";
+import {
+  createLoginFormSchema,
+  type LoginFormSchema,
+  type LoginFormValues,
+} from "@/lib/auth-schemas";
+import { useApiErrorParser } from "@/lib/use-api-error";
+import { useSchema } from "@/lib/use-schema";
 import { useLoginMutation } from "@/store/api";
 import { AuthCard } from "./AuthCard";
 import { useRedirectWhenAuthenticated } from "./useRedirectWhenAuthenticated";
@@ -15,14 +22,18 @@ import { useRedirectWhenAuthenticated } from "./useRedirectWhenAuthenticated";
 export function LoginForm() {
   const { status, target } = useRedirectWhenAuthenticated();
   const [login] = useLoginMutation();
+  const t = useTranslations("auth");
+  const parseError = useApiErrorParser();
+  const schema = useSchema(createLoginFormSchema);
+  useDocumentTitle(t("login.title"));
 
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues, unknown, z.output<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
+  } = useForm<LoginFormValues, unknown, z.output<LoginFormSchema>>({
+    resolver: zodResolver(schema),
     mode: "onTouched",
     defaultValues: { email: "", password: "" },
   });
@@ -31,13 +42,13 @@ export function LoginForm() {
     try {
       await login(values).unwrap();
     } catch (error) {
-      const parsed = parseApiError(error, "Не удалось войти");
+      const parsed = parseError(error, t("login.error"));
       setError("root", {
         message:
           parsed.status === 401
-            ? "Неверный email или пароль"
+            ? t("login.invalidCredentials")
             : parsed.status === 429
-              ? "Слишком много попыток. Попробуйте позже"
+              ? t("login.tooManyAttempts")
               : parsed.message,
       });
     }
@@ -47,17 +58,17 @@ export function LoginForm() {
 
   return (
     <AuthCard
-      title="Вход"
-      subtitle="Войдите, чтобы работать с приходами и продуктами"
+      title={t("login.title")}
+      subtitle={t("login.subtitle")}
       footer={
         <>
-          Нет аккаунта?{" "}
-          <Link href={`/register?next=${encodeURIComponent(target)}`}>Зарегистрироваться</Link>
+          {t("login.noAccount")}{" "}
+          <Link href={`/register?next=${encodeURIComponent(target)}`}>{t("login.toRegister")}</Link>
         </>
       }
     >
       <form className="auth-page__form" noValidate onSubmit={onSubmit}>
-        <FormField id="login-email" label="Email" required error={errors.email?.message}>
+        <FormField id="login-email" label={t("email")} required error={errors.email?.message}>
           <input
             type="email"
             autoComplete="username"
@@ -66,7 +77,12 @@ export function LoginForm() {
             {...register("email")}
           />
         </FormField>
-        <FormField id="login-password" label="Пароль" required error={errors.password?.message}>
+        <FormField
+          id="login-password"
+          label={t("password")}
+          required
+          error={errors.password?.message}
+        >
           <input
             type="password"
             autoComplete="current-password"
@@ -80,7 +96,7 @@ export function LoginForm() {
           </p>
         )}
         <button type="submit" className="auth-page__submit" disabled={isSubmitting}>
-          {isSubmitting ? "Вход…" : "Войти"}
+          {isSubmitting ? t("login.submitting") : t("login.submit")}
         </button>
       </form>
     </AuthCard>

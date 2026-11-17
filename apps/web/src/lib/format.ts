@@ -1,23 +1,34 @@
+import { DEFAULT_LOCALE, INTL_LOCALE, type Locale } from "@/i18n/config";
 import type { Money } from "@/types/api";
-
-const LOCALE = "ru-RU";
 
 const pad = (value: number) => String(value).padStart(2, "0");
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
-const shortMonth = (date: Date) =>
-  capitalize(new Intl.DateTimeFormat(LOCALE, { month: "short" }).format(date).replace(".", ""));
-
 const toDate = (value: string | Date) => (value instanceof Date ? value : new Date(value));
+
+const formatters = new Map<string, Intl.DateTimeFormat | Intl.NumberFormat>();
+
+function cached<T extends Intl.DateTimeFormat | Intl.NumberFormat>(key: string, create: () => T) {
+  if (!formatters.has(key)) formatters.set(key, create());
+  return formatters.get(key) as T;
+}
+
+const dateFormatter = (locale: Locale, options: Intl.DateTimeFormatOptions) =>
+  cached(`date:${locale}:${JSON.stringify(options)}`, () => {
+    return new Intl.DateTimeFormat(INTL_LOCALE[locale], options);
+  });
+
+const shortMonth = (date: Date, locale: Locale) =>
+  capitalize(dateFormatter(locale, { month: "short" }).format(date).replace(".", ""));
 
 export function formatMonthOfYear(value: string | Date) {
   return `${pad(toDate(value).getMonth() + 1)} / 12`;
 }
 
-export function formatLongDate(value: string | Date) {
+export function formatLongDate(value: string | Date, locale: Locale = DEFAULT_LOCALE) {
   const date = toDate(value);
-  return `${pad(date.getDate())} / ${shortMonth(date)} / ${date.getFullYear()}`;
+  return `${pad(date.getDate())} / ${shortMonth(date, locale)} / ${date.getFullYear()}`;
 }
 
 export function formatNumericDate(value: string | Date) {
@@ -25,25 +36,27 @@ export function formatNumericDate(value: string | Date) {
   return `${pad(date.getDate())} / ${pad(date.getMonth() + 1)} / ${date.getFullYear()}`;
 }
 
-export function formatWeekday(date: Date) {
-  return capitalize(new Intl.DateTimeFormat(LOCALE, { weekday: "long" }).format(date));
+export function formatWeekday(date: Date, locale: Locale = DEFAULT_LOCALE) {
+  return capitalize(dateFormatter(locale, { weekday: "long" }).format(date));
 }
 
-export function formatHeaderDate(date: Date) {
-  return `${pad(date.getDate())} ${shortMonth(date)}, ${date.getFullYear()}`;
+export function formatHeaderDate(date: Date, locale: Locale = DEFAULT_LOCALE) {
+  return `${pad(date.getDate())} ${shortMonth(date, locale)}, ${date.getFullYear()}`;
 }
 
 export function formatTime(date: Date) {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-const amountFormatter = new Intl.NumberFormat(LOCALE, {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-});
-
-export function formatAmount(value: number) {
-  return amountFormatter.format(value).replace(",", ".");
+export function formatAmount(value: number, locale: Locale = DEFAULT_LOCALE) {
+  const formatter = cached(`amount:${locale}`, () => {
+    return new Intl.NumberFormat(INTL_LOCALE[locale], {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+  });
+  const formatted = formatter.format(value);
+  return locale === "ru" ? formatted.replace(",", ".") : formatted;
 }
 
 const CURRENCY_LABEL: Record<Money["symbol"], string> = { USD: "$", UAH: "UAH" };
@@ -57,13 +70,3 @@ export function splitPrices(prices: Money[]) {
   const secondary = prices.find((price) => price !== primary);
   return { primary, secondary };
 }
-
-export function pluralize(count: number, forms: [one: string, few: string, many: string]) {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return forms[0];
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
-  return forms[2];
-}
-
-export const PRODUCT_FORMS: [string, string, string] = ["Продукт", "Продукта", "Продуктов"];

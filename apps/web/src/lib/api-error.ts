@@ -13,17 +13,17 @@ type ApiErrorBody = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-export function parseApiError(error: unknown, fallback = "Что-то пошло не так"): ParsedApiError {
+export function parseApiError(
+  error: unknown,
+  fallback: string,
+  networkMessage = fallback,
+): ParsedApiError {
   if (!isRecord(error) || !("status" in error)) {
     return { status: null, message: fallback, details: [] };
   }
 
   if (typeof error.status !== "number") {
-    return {
-      status: null,
-      message: "Нет соединения с сервером. Проверьте, что API запущен.",
-      details: [],
-    };
+    return { status: null, message: networkMessage, details: [] };
   }
 
   const body = (isRecord(error.data) ? error.data : {}) as ApiErrorBody;

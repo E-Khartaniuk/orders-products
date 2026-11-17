@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
+import { useTranslations } from "use-intl";
 import { AddProductDialog } from "@/components/products/AddProductDialog";
 import { DeleteProductDialog } from "@/components/products/DeleteProductDialog";
 import { ProductLine } from "@/components/products/ProductLine";
@@ -12,6 +13,8 @@ import type { Product } from "@/types/api";
 
 export function OrderDetailsPanel() {
   const params = useParams<{ id: string }>();
+  const t = useTranslations("orders");
+  const tc = useTranslations("common");
   const id = Number(params.id);
   const {
     data: order,
@@ -32,7 +35,7 @@ export function OrderDetailsPanel() {
 
   return (
     <div className="order-details">
-      <Link href="/orders" scroll={false} className="order-details__close" aria-label="Закрыть">
+      <Link href="/orders" scroll={false} className="order-details__close" aria-label={tc("close")}>
         <i className="bi bi-x-lg" aria-hidden="true" />
       </Link>
 
@@ -46,7 +49,7 @@ export function OrderDetailsPanel() {
         <div className="p-4">
           <StateMessage
             variant="error"
-            message={notFound ? "Приход не найден" : "Не удалось загрузить приход"}
+            message={notFound ? t("notFound") : t("loadOneError")}
             onRetry={notFound ? undefined : refetch}
           />
         </div>
@@ -58,11 +61,11 @@ export function OrderDetailsPanel() {
             <h2 className="order-details__title">{order.title}</h2>
             <button type="button" className="order-details__add" onClick={() => setAddOpen(true)}>
               <i className="bi bi-plus-circle-fill" aria-hidden="true" />
-              Добавить продукт
+              {t("addProduct")}
             </button>
           </header>
           {order.products.length === 0 ? (
-            <p className="order-details__empty">В этом приходе пока нет продуктов</p>
+            <p className="order-details__empty">{t("noProducts")}</p>
           ) : (
             <ul className="order-details__list">
               {order.products.map((product) => (

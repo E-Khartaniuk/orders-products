@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { parseApiError } from "./api-error";
 import {
-  PRODUCT_FORMS,
   formatAmount,
   formatLongDate,
   formatMonthOfYear,
   formatNumericDate,
-  pluralize,
   splitPrices,
 } from "./format";
 
@@ -21,6 +19,10 @@ describe("date formats", () => {
     expect(formatLongDate(date)).toBe("06 / Апр / 2017");
     expect(formatNumericDate(date)).toBe("06 / 04 / 2017");
   });
+
+  it("uses the requested locale for month names", () => {
+    expect(formatLongDate(date, "en")).toBe("06 / Apr / 2017");
+  });
 });
 
 describe("formatAmount", () => {
@@ -28,17 +30,9 @@ describe("formatAmount", () => {
     expect(formatAmount(250000.5).replace(/\s/g, " ")).toBe("250 000.5");
     expect(formatAmount(50)).toBe("50");
   });
-});
 
-describe("pluralize", () => {
-  it.each([
-    [1, "Продукт"],
-    [3, "Продукта"],
-    [11, "Продуктов"],
-    [23, "Продукта"],
-    [25, "Продуктов"],
-  ])("%i → %s", (count, expected) => {
-    expect(pluralize(count, PRODUCT_FORMS)).toBe(expected);
+  it("keeps English grouping and decimal separators", () => {
+    expect(formatAmount(250000.5, "en")).toBe("250,000.5");
   });
 });
 
@@ -55,10 +49,15 @@ describe("splitPrices", () => {
 
 describe("parseApiError", () => {
   it("extracts message and details from API response", () => {
-    const parsed = parseApiError({
-      status: 400,
-      data: { error: { message: "Validation failed", details: [{ path: "title", message: "x" }] } },
-    });
+    const parsed = parseApiError(
+      {
+        status: 400,
+        data: {
+          error: { message: "Validation failed", details: [{ path: "title", message: "x" }] },
+        },
+      },
+      "fallback",
+    );
     expect(parsed).toEqual({
       status: 400,
       message: "Validation failed",
@@ -67,6 +66,7 @@ describe("parseApiError", () => {
   });
 
   it("reports network errors", () => {
-    expect(parseApiError({ status: "FETCH_ERROR", error: "Failed" }).status).toBeNull();
+    const parsed = parseApiError({ status: "FETCH_ERROR", error: "Failed" }, "fallback", "offline");
+    expect(parsed).toMatchObject({ status: null, message: "offline" });
   });
 });

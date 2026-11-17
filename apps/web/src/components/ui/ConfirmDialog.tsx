@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "use-intl";
 import { Dialog, DialogError, DialogFooter } from "./Dialog";
 
 type ConfirmDialogProps = {
@@ -26,6 +27,7 @@ export function ConfirmDialog({
   onClose,
   children,
 }: ConfirmDialogProps) {
+  const t = useTranslations("common");
   return (
     <Dialog open={open} title={title} role="alertdialog" locked={pending} onClose={onClose}>
       {children && <div className="dialog__body">{children}</div>}
@@ -38,7 +40,7 @@ export function ConfirmDialog({
           disabled={pending}
         >
           <i className="bi bi-trash-fill" aria-hidden="true" />
-          {pending ? "Удаление…" : confirmLabel}
+          {pending ? t("deleting") : confirmLabel}
         </button>
       </DialogFooter>
     </Dialog>

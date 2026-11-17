@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "use-intl";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useDeleteProductMutation } from "@/store/api";
 import type { Product } from "@/types/api";
@@ -13,6 +14,8 @@ type DeleteProductDialogProps = {
 
 export function DeleteProductDialog({ product, onClose }: DeleteProductDialogProps) {
   const [deleteProduct, { isLoading }] = useDeleteProductMutation();
+  const t = useTranslations("products.delete");
+  const tc = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
 
   const close = useCallback(() => {
@@ -26,15 +29,15 @@ export function DeleteProductDialog({ product, onClose }: DeleteProductDialogPro
       await deleteProduct({ id: product.id, orderId: product.order.id }).unwrap();
       close();
     } catch {
-      setError("Не удалось удалить продукт. Попробуйте ещё раз.");
+      setError(t("error"));
     }
   };
 
   return (
     <ConfirmDialog
       open={product !== null}
-      title="Вы уверены, что хотите удалить этот продукт?"
-      confirmLabel="Удалить"
+      title={t("title")}
+      confirmLabel={tc("delete")}
       pending={isLoading}
       error={error}
       onConfirm={confirm}

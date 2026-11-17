@@ -13,6 +13,7 @@
 @use "blocks/form";
 @use "blocks/auth-page";
 @use "blocks/state";
+@use "blocks/locale-switcher";
 
 :root {
   --bs-primary: #{$color-primary};
