@@ -1,15 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useTranslations } from "use-intl";
-import { AddProductDialog } from "@/components/products/AddProductDialog";
-import { DeleteProductDialog } from "@/components/products/DeleteProductDialog";
 import { ProductLine } from "@/components/products/ProductLine";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
 import { useGetOrderQuery } from "@/store/api";
 import type { Product } from "@/types/api";
+
+const AddProductDialog = dynamic(() =>
+  import("@/components/products/AddProductDialog").then((module) => module.AddProductDialog),
+);
+const DeleteProductDialog = dynamic(() =>
+  import("@/components/products/DeleteProductDialog").then((module) => module.DeleteProductDialog),
+);
 
 export function OrderDetailsPanel() {
   const params = useParams<{ id: string }>();

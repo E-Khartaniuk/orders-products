@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
 import { useTranslations } from "use-intl";
@@ -12,9 +13,14 @@ import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetOrdersQuery } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
-import { CreateOrderDialog } from "./CreateOrderDialog";
-import { DeleteOrderDialog } from "./DeleteOrderDialog";
 import { OrderRow } from "./OrderRow";
+
+const CreateOrderDialog = dynamic(() =>
+  import("./CreateOrderDialog").then((module) => module.CreateOrderDialog),
+);
+const DeleteOrderDialog = dynamic(() =>
+  import("./DeleteOrderDialog").then((module) => module.DeleteOrderDialog),
+);
 
 export function OrdersView({ children }: { children: ReactNode }) {
   const router = useRouter();

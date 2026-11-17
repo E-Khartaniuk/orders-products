@@ -2,7 +2,12 @@ import { prisma } from "../../db.js";
 import { HttpError } from "../../lib/http-error.js";
 import { sumByCurrency, type PriceLike } from "../../lib/money.js";
 import { productInclude, toProductDto } from "../products/products.mapper.js";
-import type { CreateOrderBody, ListOrdersQuery, UpdateOrderBody } from "./orders.schemas.js";
+import type {
+  CreateOrderBody,
+  ListOrdersQuery,
+  OrderLocation,
+  UpdateOrderBody,
+} from "./orders.schemas.js";
 
 const summaryInclude = {
   products: { select: { prices: { select: { value: true, symbol: true, isDefault: true } } } },
@@ -14,8 +19,25 @@ type OrderRecord = {
   description: string | null;
   date: Date;
   createdAt: Date;
+  city?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   products: { prices: PriceLike[] }[];
 };
+
+function toLocation(order: OrderRecord): OrderLocation | null {
+  if (order.city == null || order.latitude == null || order.longitude == null) return null;
+  return { city: order.city, latitude: order.latitude, longitude: order.longitude };
+}
+
+function toLocationColumns(location: OrderLocation | null | undefined) {
+  if (location === undefined) return {};
+  return {
+    city: location?.city ?? null,
+    latitude: location?.latitude ?? null,
+    longitude: location?.longitude ?? null,
+  };
+}
 
 function toOrderSummary(order: OrderRecord) {
   return {
@@ -24,6 +46,7 @@ function toOrderSummary(order: OrderRecord) {
     description: order.description,
     date: order.date,
     createdAt: order.createdAt,
+    location: toLocation(order),
     productsCount: order.products.length,
     totals: sumByCurrency(order.products.flatMap((product) => product.prices)),
   };
@@ -56,7 +79,12 @@ export async function getOrder(id: number) {
 
 export async function createOrder(input: CreateOrderBody) {
   const order = await prisma.order.create({
-    data: { ...input, date: input.date ?? new Date() },
+    data: {
+      title: input.title,
+      description: input.description,
+      date: input.date ?? new Date(),
+      ...toLocationColumns(input.location),
+    },
     include: summaryInclude,
   });
 
@@ -64,7 +92,12 @@ export async function createOrder(input: CreateOrderBody) {
 }
 
 export async function updateOrder(id: number, input: UpdateOrderBody) {
-  const order = await prisma.order.update({ where: { id }, data: input, include: summaryInclude });
+  const { location, ...data } = input;
+  const order = await prisma.order.update({
+    where: { id },
+    data: { ...data, ...toLocationColumns(location) },
+    include: summaryInclude,
+  });
   return toOrderSummary(order);
 }
 

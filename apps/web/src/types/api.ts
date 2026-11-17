@@ -25,12 +25,19 @@ export type Product = {
   user: { id: number; name: string } | null;
 };
 
+export type OrderLocation = {
+  city: string;
+  latitude: number;
+  longitude: number;
+};
+
 export type OrderSummary = {
   id: number;
   title: string;
   description: string | null;
   date: string;
   createdAt: string;
+  location: OrderLocation | null;
   productsCount: number;
   totals: Money[];
 };

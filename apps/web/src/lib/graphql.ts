@@ -68,6 +68,11 @@ export const ORDER_DETAILS_QUERY = /* GraphQL */ `
       description
       date
       createdAt
+      location {
+        city
+        latitude
+        longitude
+      }
       productsCount
       totals {
         symbol

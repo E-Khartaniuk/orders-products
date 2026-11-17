@@ -62,12 +62,19 @@ export const typeDefs = /* GraphQL */ `
     user: UserRef
   }
 
+  type Location {
+    city: String!
+    latitude: Float!
+    longitude: Float!
+  }
+
   type Order {
     id: ID!
     title: String!
     description: String
     date: DateTime!
     createdAt: DateTime!
+    location: Location
     productsCount: Int!
     totals: [Money!]!
     products: [Product!]!
@@ -79,10 +86,17 @@ export const typeDefs = /* GraphQL */ `
     isDefault: Boolean
   }
 
+  input LocationInput {
+    city: String!
+    latitude: Float!
+    longitude: Float!
+  }
+
   input CreateOrderInput {
     title: String!
     description: String
     date: DateTime
+    location: LocationInput
   }
 
   input CreateProductInput {

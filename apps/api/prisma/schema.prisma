@@ -51,6 +51,9 @@ model Order {
   description String?   @db.Text
   date        DateTime
   createdAt   DateTime  @default(now()) @map("created_at")
+  city        String?   @db.VarChar(120)
+  latitude    Float?
+  longitude   Float?
   products    Product[]
 
   @@map("orders")
