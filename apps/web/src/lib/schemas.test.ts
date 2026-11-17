@@ -36,13 +36,23 @@ describe("orderFormSchema", () => {
       title: "  Order  ",
       description: "",
       date: "2024-05-01",
+      warehouse: "Lviv",
     });
     expect(result.title).toBe("Order");
-    expect(toCreateOrderPayload(result)).toMatchObject({ title: "Order", description: null });
+    expect(toCreateOrderPayload(result)).toMatchObject({
+      title: "Order",
+      description: null,
+      location: { city: "Lviv" },
+    });
   });
 
   it("requires title and a valid date", () => {
-    const result = orderFormSchema.safeParse({ title: "   ", description: "", date: "01.05.2024" });
+    const result = orderFormSchema.safeParse({
+      title: "   ",
+      description: "",
+      date: "01.05.2024",
+      warehouse: "",
+    });
     expect(issuesOf(result)).toEqual(["title", "date"]);
   });
 });

@@ -10,6 +10,7 @@ import { useTranslations } from "use-intl";
 const LINKS = [
   { href: "/orders", key: "orders" },
   { href: "/products", key: "products" },
+  { href: "/dashboard", key: "dashboard" },
 ] as const;
 
 function NavLinks({ pathname }: { pathname: string | null }) {

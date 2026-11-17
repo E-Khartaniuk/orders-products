@@ -21,7 +21,8 @@
     "orders": "Orders",
     "products": "Products",
     "avatar": "User avatar",
-    "settings": "Profile settings"
+    "settings": "Profile settings",
+    "dashboard": "Analytics"
   },
   "header": {
     "home": "Inventory — home",
@@ -52,7 +53,9 @@
       "description": "Description",
       "descriptionHint": "Optional, up to 2000 characters",
       "submit": "Create",
-      "error": "Failed to create the order"
+      "error": "Failed to create the order",
+      "warehouse": "Warehouse",
+      "warehouseNone": "Not set"
     },
     "delete": {
       "title": "Are you sure you want to delete this order?",
@@ -157,5 +160,30 @@
   "errors": {
     "generic": "Something went wrong",
     "network": "No connection to the server. Make sure the API is running."
+  },
+  "dashboard": {
+    "title": "Analytics",
+    "loadError": "Failed to load data. Make sure the API is running.",
+    "kpi": {
+      "orders": "Orders",
+      "products": "Products",
+      "value": "Total value",
+      "inUse": "In use"
+    },
+    "byStatus": "Products by status",
+    "byType": "Products by type",
+    "byMonth": "Order value by month, UAH",
+    "map": "Order warehouses",
+    "mapLabel": "Map of warehouses where orders are registered",
+    "withoutLocation": "Without warehouse: {count}",
+    "showTable": "Show as table",
+    "columns": {
+      "status": "Status",
+      "type": "Type",
+      "count": "Count",
+      "month": "Month",
+      "value": "Value, UAH"
+    },
+    "openOrder": "Open order"
   }
 }

@@ -165,3 +165,40 @@ describe("unknown routes", () => {
     expect(res.body.error.message).toContain("/api/unknown");
   });
 });
+
+describe("order location", () => {
+  it("exposes location when coordinates are stored", async () => {
+    prismaMock.order.findMany.mockResolvedValue([
+      { ...orderRecord, city: "Kyiv", latitude: 50.45, longitude: 30.52, products: [] },
+    ]);
+
+    const res = await api.get("/api/orders");
+
+    expect(res.body.items[0].location).toEqual({ city: "Kyiv", latitude: 50.45, longitude: 30.52 });
+  });
+
+  it("stores location columns on create", async () => {
+    prismaMock.order.create.mockResolvedValue({ ...orderRecord, products: [] });
+
+    const res = await api.post("/api/orders").send({
+      title: "With location",
+      location: { city: "Lviv", latitude: 49.84, longitude: 24.03 },
+    });
+
+    expect(res.status).toBe(201);
+    expect(prismaMock.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ city: "Lviv", latitude: 49.84, longitude: 24.03 }),
+      }),
+    );
+  });
+
+  it("rejects out-of-range coordinates", async () => {
+    const res = await api.post("/api/orders").send({
+      title: "Bad",
+      location: { city: "Nowhere", latitude: 120, longitude: 0 },
+    });
+
+    expect(res.status).toBe(400);
+  });
+});

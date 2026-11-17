@@ -10,6 +10,14 @@ const PRODUCT_TYPES = [
 ];
 
 const STATUSES = ["FREE", "IN_REPAIR", "IN_USE"] as const;
+
+const WAREHOUSES = [
+  { city: "Kyiv", latitude: 50.4501, longitude: 30.5234 },
+  { city: "Lviv", latitude: 49.8397, longitude: 24.0297 },
+  { city: "Kharkiv", latitude: 49.9935, longitude: 36.2304 },
+  { city: "Odesa", latitude: 46.4825, longitude: 30.7233 },
+  { city: "Dnipro", latitude: 48.4647, longitude: 35.0462 },
+] as const;
 const USD_TO_UAH = 41.5;
 const ORDERS_COUNT = 25;
 const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? "demo@inventory.local";
@@ -52,6 +60,16 @@ async function main() {
     ),
   );
 
+  const seedLocation = () => {
+    const warehouse = faker.helpers.arrayElement(WAREHOUSES);
+    const jitter = () => faker.number.float({ min: -0.03, max: 0.03, fractionDigits: 5 });
+    return {
+      city: warehouse.city,
+      latitude: warehouse.latitude + jitter(),
+      longitude: warehouse.longitude + jitter(),
+    };
+  };
+
   for (let i = 0; i < ORDERS_COUNT; i++) {
     const orderDate = faker.date.past({ years: 2 });
     const order = await prisma.order.create({
@@ -59,6 +77,7 @@ async function main() {
         title: `Приход: ${faker.commerce.productName()}`,
         description: faker.commerce.productDescription(),
         date: orderDate,
+        ...seedLocation(),
       },
     });
 

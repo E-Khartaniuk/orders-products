@@ -17,9 +17,12 @@ import {
 } from "@/lib/schemas";
 import { useApiErrorParser } from "@/lib/use-api-error";
 import { useSchema } from "@/lib/use-schema";
+import { WAREHOUSES } from "@/lib/warehouses";
 import { useCreateOrderMutation } from "@/store/api";
 
 const FIELDS = ["title", "description", "date"] as const;
+
+const EMPTY_VALUES: OrderFormValues = { title: "", description: "", date: "", warehouse: "" };
 
 type CreateOrderDialogProps = {
   open: boolean;
@@ -43,11 +46,11 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
   } = useForm<OrderFormValues, unknown, z.output<OrderFormSchema>>({
     resolver: zodResolver(schema),
     mode: "onTouched",
-    defaultValues: { title: "", description: "", date: "" },
+    defaultValues: EMPTY_VALUES,
   });
 
   useEffect(() => {
-    if (open) reset({ title: "", description: "", date: todayInputValue() });
+    if (open) reset({ ...EMPTY_VALUES, date: todayInputValue() });
   }, [open, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
@@ -90,6 +93,19 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
             </FormField>
             <FormField id="order-date" label={t("date")} required error={dateError}>
               <input type="date" {...fieldA11y("order-date", dateError)} {...register("date")} />
+            </FormField>
+            <FormField id="order-warehouse" label={t("warehouse")}>
+              <select
+                {...fieldA11y("order-warehouse", undefined, { control: "form-select" })}
+                {...register("warehouse")}
+              >
+                <option value="">{t("warehouseNone")}</option>
+                {WAREHOUSES.map((warehouse) => (
+                  <option key={warehouse.city} value={warehouse.city}>
+                    {warehouse.city}
+                  </option>
+                ))}
+              </select>
             </FormField>
             <FormField
               id="order-description"

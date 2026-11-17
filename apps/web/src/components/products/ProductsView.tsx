@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -9,9 +10,12 @@ import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetProductsQuery } from "@/store/api";
 import type { Product } from "@/types/api";
-import { DeleteProductDialog } from "./DeleteProductDialog";
 import { ProductRow } from "./ProductRow";
 import { ProductTypeFilter } from "./ProductTypeFilter";
+
+const DeleteProductDialog = dynamic(() =>
+  import("./DeleteProductDialog").then((module) => module.DeleteProductDialog),
+);
 
 export function ProductsView() {
   const t = useTranslations("products");

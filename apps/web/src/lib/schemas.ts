@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { ProductStatus } from "@/types/api";
 import type { ValidationT } from "./validation";
+import { findWarehouse } from "./warehouses";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MONEY = /^\d{1,10}([.,]\d{1,2})?$/;
@@ -39,6 +40,7 @@ export const createOrderFormSchema = (t: ValidationT) =>
       .trim()
       .max(2000, t("maxChars", { max: 2000 })),
     date: dateField(t, t("orderDateRequired")),
+    warehouse: z.string(),
   });
 
 export type OrderFormSchema = ReturnType<typeof createOrderFormSchema>;
@@ -49,6 +51,7 @@ export function toCreateOrderPayload(values: z.output<OrderFormSchema>) {
     title: values.title,
     description: values.description || null,
     date: toIsoDate(values.date),
+    location: findWarehouse(values.warehouse),
   };
 }
 
