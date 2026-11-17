@@ -1,0 +1,92 @@
+import { faker } from "@faker-js/faker";
+import { prisma } from "../src/db.js";
+
+const PRODUCT_TYPES = [
+  { type: "Monitors", titles: ["Dell UltraSharp U2723QE", "LG 27UL850-W", "Samsung Odyssey G5"] },
+  { type: "Motherboards", titles: ["Gigabyte X58-USB3 (Socket 1366)", "ASUS PRIME B650-PLUS"] },
+  { type: "Laptops", titles: ["Lenovo ThinkPad T14", "Apple MacBook Air M3", "HP EliteBook 840"] },
+  { type: "Printers", titles: ["HP LaserJet Pro M404dn", "Canon PIXMA G3420"] },
+];
+
+const STATUSES = ["FREE", "IN_REPAIR", "IN_USE"] as const;
+const USD_TO_UAH = 41.5;
+const ORDERS_COUNT = 25;
+
+async function main() {
+  faker.seed(42);
+
+  await prisma.price.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.productGroup.deleteMany();
+  await prisma.user.deleteMany();
+
+  const groups = await Promise.all(
+    Array.from({ length: 5 }, (_, i) =>
+      prisma.productGroup.create({ data: { title: `${faker.commerce.department()} #${i + 1}` } }),
+    ),
+  );
+
+  const users = await Promise.all(
+    Array.from({ length: 5 }, () =>
+      prisma.user.create({
+        data: {
+          email: faker.internet.email().toLowerCase(),
+          passwordHash: "seed-only",
+          name: faker.person.fullName(),
+          avatarUrl: faker.image.avatar(),
+        },
+      }),
+    ),
+  );
+
+  for (let i = 0; i < ORDERS_COUNT; i++) {
+    const orderDate = faker.date.past({ years: 2 });
+    const order = await prisma.order.create({
+      data: {
+        title: `Приход: ${faker.commerce.productName()}`,
+        description: faker.commerce.productDescription(),
+        date: orderDate,
+      },
+    });
+
+    const productsCount = faker.number.int({ min: 2, max: 8 });
+    for (let j = 0; j < productsCount; j++) {
+      const kind = faker.helpers.arrayElement(PRODUCT_TYPES);
+      const usd = faker.number.float({ min: 50, max: 3000, fractionDigits: 2 });
+      const status = faker.helpers.arrayElement(STATUSES);
+
+      await prisma.product.create({
+        data: {
+          serialNumber: `SN-${faker.string.numeric(10)}`,
+          isNew: faker.datatype.boolean(),
+          title: faker.helpers.arrayElement(kind.titles),
+          type: kind.type,
+          specification: faker.commerce.productAdjective(),
+          status,
+          guaranteeStart: orderDate,
+          guaranteeEnd: faker.date.future({ years: 3, refDate: orderDate }),
+          date: orderDate,
+          orderId: order.id,
+          groupId: faker.datatype.boolean() ? faker.helpers.arrayElement(groups).id : null,
+          userId: status === "IN_USE" ? faker.helpers.arrayElement(users).id : null,
+          prices: {
+            create: [
+              { value: usd, symbol: "USD", isDefault: false },
+              { value: Math.round(usd * USD_TO_UAH * 100) / 100, symbol: "UAH", isDefault: true },
+            ],
+          },
+        },
+      });
+    }
+  }
+
+  console.log(`Seed completed: ${ORDERS_COUNT} orders`);
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());

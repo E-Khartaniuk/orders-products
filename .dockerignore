@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.env
+**/src/generated
+.git
+.husky
+.github
