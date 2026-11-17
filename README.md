@@ -2,7 +2,7 @@
 
 SPA для учёта приходов (orders) и продуктов (products): список приходов с боковой панелью деталей, удаление через попап, каталог продуктов с фильтром по типу, живые дата/время и счётчик активных вкладок через WebSocket.
 
-> Статус: каркас проекта (инфраструктура, схема БД, API skeleton). Функциональность добавляется по этапам — см. [Roadmap](#roadmap).
+> Статус: основная функциональность готова (приходы, продукты, формы, JWT, REST и GraphQL API). Дополнительные возможности добавляются по этапам — см. [Roadmap](#roadmap).
 
 ## Стек
 
@@ -10,7 +10,7 @@ SPA для учёта приходов (orders) и продуктов (products)
 | -------- | ----------------------------------------------------------- |
 | Frontend | Next.js (App Router, SSR), React, TypeScript, Redux Toolkit |
 | Стили    | Bootstrap 5, SCSS, БЭМ                                      |
-| Backend  | Node.js, Express, Socket.io, Zod                            |
+| Backend  | Node.js, Express, Apollo Server (GraphQL), Socket.io, Zod   |
 | БД       | MySQL 8.4, Prisma ORM                                       |
 | Инфра    | Docker, Docker Compose, GitHub Actions, Husky + lint-staged |
 
@@ -103,6 +103,38 @@ npm run dev                           # web :3000 + api :4000
 - Клиент при `401` один раз вызывает `/auth/refresh` (параллельные запросы ждут один и тот же refresh) и повторяет запрос; при неудаче — выход на страницу входа.
 - Переменные: `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (обязательны в production, ≥ 32 символов), `ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_TTL_DAYS`, `COOKIE_SECURE` (`true` за HTTPS).
 
+## GraphQL API
+
+Эндпоинт: `POST http://localhost:4000/api/graphql` с тем же заголовком `Authorization: Bearer <accessToken>`. В режиме разработки по `GET` на этот адрес открывается Apollo Sandbox, introspection включена; в production оба отключены. Схема — [`apps/api/src/graphql/schema.ts`](apps/api/src/graphql/schema.ts).
+
+- **Query:** `me`, `orders(search)`, `order(id)`, `products(type, search, orderId)`, `productTypes`.
+- **Mutation:** `createOrder`, `deleteOrder`, `createProduct`, `deleteProduct`.
+- Резолверы используют те же сервисы и Zod-схемы, что и REST, поэтому бизнес-логика и валидация общие.
+- `Order.products` загружается через DataLoader: запрос списка приходов с продуктами выполняет один SQL-запрос на все приходы вместо N.
+- Ошибки возвращаются с `extensions.code`: `UNAUTHENTICATED` (HTTP 401, чтобы клиент обновил токен), `BAD_USER_INPUT` (с `details` по полям), `NOT_FOUND`, `CONFLICT`; внутренние ошибки маскируются.
+- Во фронтенде через GraphQL загружается панель деталей прихода (`OrderDetails` с фрагментом `ProductFields`), остальное — через REST.
+
+```graphql
+query OrderDetails($id: ID!) {
+  order(id: $id) {
+    title
+    productsCount
+    totals {
+      symbol
+      value
+    }
+    products {
+      title
+      status
+      prices {
+        symbol
+        value
+      }
+    }
+  }
+}
+```
+
 ## База данных
 
 Схема описана в [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma): `orders`, `products`, `prices` (цена продукта в USD и UAH), `product_groups`, `users`, `refresh_sessions`.
@@ -136,7 +168,7 @@ npm run dev                           # web :3000 + api :4000
 - [x] Orders: список, панель деталей, удаление с попапом
 - [x] Products: список, фильтр по типу
 - [x] Формы с валидацией
-- [ ] GraphQL
+- [x] GraphQL
 - [ ] i18n, lazy loading, WebStorage, charts, maps
 - [ ] Graph, WebWorkers, PWA, event-driven обновления
 - [ ] Unit, интеграционные и e2e тесты
