@@ -13,6 +13,7 @@
 
   &__details {
     min-width: 0;
+    scroll-margin: calc(#{$header-height} + 24px) 0 24px;
     transition: margin-top 0.25s ease;
   }
 

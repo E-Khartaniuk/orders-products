@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDocumentTitle } from "@/i18n/use-document-title";
@@ -48,6 +48,19 @@ export function OrdersView({ children }: { children: ReactNode }) {
   const hasDetails = selectedId !== null;
   const listRef = useRef<HTMLDivElement>(null);
   const detailsOffset = useActiveRowOffset(listRef, hasDetails, [selectedId, data]);
+  const detailsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!hasDetails) return;
+    const timer = window.setTimeout(() => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      detailsRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [hasDetails, selectedId, detailsOffset]);
 
   return (
     <>
@@ -95,6 +108,7 @@ export function OrdersView({ children }: { children: ReactNode }) {
           {hasDetails && (
             <motion.section
               key={selectedId}
+              ref={detailsRef}
               className="orders__details"
               style={{ marginTop: detailsOffset }}
               initial={{ opacity: 0, x: 40 }}
