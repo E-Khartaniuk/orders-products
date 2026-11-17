@@ -1,0 +1,39 @@
+{
+  "name": "@op/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^7.0.7",
+    "@reduxjs/toolkit": "^2.14.0",
+    "bootstrap": "^5.3.9",
+    "bootstrap-icons": "^1.13.2",
+    "clsx": "^2.1.1",
+    "motion": "^14.14.0",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.92.0",
+    "react-redux": "^9.3.1",
+    "socket.io-client": "^4.8.4",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "sass": "^1.108.2",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  }
+}

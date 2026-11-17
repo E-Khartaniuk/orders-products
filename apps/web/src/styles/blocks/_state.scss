@@ -1,0 +1,59 @@
+@use "../tokens" as *;
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  border: 1px dashed $color-border;
+  border-radius: $radius;
+  background: rgba($color-surface, 0.6);
+  color: $color-text-muted;
+  text-align: center;
+
+  &__icon {
+    font-size: 2rem;
+    color: $color-text-soft;
+  }
+
+  &--error &__icon {
+    color: $color-danger;
+  }
+
+  &__retry {
+    padding: 6px 18px;
+    border: 1px solid $color-primary;
+    border-radius: 999px;
+    background: none;
+    color: $color-primary-dark;
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    &:hover {
+      background: $color-primary;
+      color: $color-surface;
+    }
+  }
+}
+
+.skeleton {
+  border-radius: $radius;
+  background: linear-gradient(90deg, #e6ebef 25%, #f3f6f8 50%, #e6ebef 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}

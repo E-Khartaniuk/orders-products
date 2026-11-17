@@ -1,0 +1,83 @@
+@use "../tokens" as *;
+
+.order-details {
+  position: relative;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+
+  &__close {
+    @include round-button(44px);
+    position: absolute;
+    top: -22px;
+    right: -22px;
+    z-index: 2;
+    background: $color-surface;
+    color: $color-text-muted;
+    font-size: 1rem;
+    box-shadow: $shadow-round;
+
+    &:hover {
+      color: $color-text;
+    }
+  }
+
+  &__header {
+    padding: 28px 38px 14px;
+  }
+
+  &__title {
+    margin: 0 0 18px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  &__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $color-primary-dark;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+
+    .bi {
+      font-size: 1.25rem;
+    }
+
+    &:hover {
+      color: #689f38;
+    }
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__empty {
+    padding: 24px 38px 32px;
+    color: $color-text-muted;
+  }
+
+  @media (max-width: ($breakpoint-md - 1px)) {
+    &__close {
+      top: 8px;
+      right: 8px;
+      width: 36px;
+      height: 36px;
+    }
+
+    &__header {
+      padding: 20px 52px 12px 16px;
+    }
+
+    &__title {
+      font-size: 1.0625rem;
+    }
+  }
+}

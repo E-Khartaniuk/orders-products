@@ -1,0 +1,37 @@
+{
+  "name": "orders-products",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Inventory SPA: orders and products with realtime sessions counter",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev -w @op/web",
+    "dev:api": "npm run dev -w @op/api",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d mysql",
+    "db:migrate": "npm run db:migrate -w @op/api",
+    "db:seed": "npm run db:seed -w @op/api",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,json,md,scss,css,yml,yaml}": "prettier --write"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.1",
+    "prettier": "^3.10.1"
+  }
+}
