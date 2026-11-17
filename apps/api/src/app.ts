@@ -3,6 +3,9 @@ import express from "express";
 import helmet from "helmet";
 import { config } from "./config.js";
 import { prisma } from "./db.js";
+import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
+import { ordersRouter } from "./modules/orders/orders.router.js";
+import { productsRouter } from "./modules/products/products.router.js";
 
 export function createApp() {
   const app = express();
@@ -19,6 +22,12 @@ export function createApp() {
       res.status(503).json({ status: "degraded", db: "down" });
     }
   });
+
+  app.use("/api/orders", ordersRouter);
+  app.use("/api/products", productsRouter);
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }
