@@ -11,6 +11,12 @@
     grid-template-columns: minmax(300px, 467px) minmax(0, 1fr);
   }
 
+  &__details {
+    position: sticky;
+    top: calc(#{$header-height} + 32px);
+    min-width: 0;
+  }
+
   &__list {
     display: flex;
     flex-direction: column;
