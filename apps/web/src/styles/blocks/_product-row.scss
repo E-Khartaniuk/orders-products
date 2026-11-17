@@ -3,7 +3,8 @@
 .product-row {
   display: grid;
   grid-template-columns:
-    12px 56px minmax(220px, 1.3fr) 100px 140px 70px 110px minmax(160px, 1fr) minmax(120px, 0.7fr)
+    12px 56px minmax(220px, 1.3fr) minmax(100px, 0.5fr) 100px 230px 70px 110px minmax(160px, 1fr)
+    minmax(120px, 0.7fr)
     minmax(160px, 1fr) 90px 28px;
   align-items: center;
   column-gap: 20px;
@@ -33,9 +34,16 @@
     @include caption;
   }
 
+  &__type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &__guarantee {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
+    align-items: baseline;
     column-gap: 8px;
     line-height: 1.4;
     white-space: nowrap;

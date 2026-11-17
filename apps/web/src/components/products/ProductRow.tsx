@@ -27,12 +27,21 @@ export function ProductRow({ product, onDelete }: ProductRowProps) {
         </span>
         <div className="product-row__serial">{product.serialNumber}</div>
       </div>
+      <span className="product-row__type" title={product.type}>
+        {product.type}
+      </span>
       <StatusLabel status={product.status} />
       <div className="product-row__guarantee">
         <span className="product-row__guarantee-label">{t("from")}</span>
-        <time dateTime={product.guarantee.start}>{formatNumericDate(product.guarantee.start)}</time>
+        <time dateTime={product.guarantee.start}>
+          {formatLongDate(product.guarantee.start, locale)}
+        </time>
+        <span className="product-row__caption">{formatNumericDate(product.guarantee.start)}</span>
         <span className="product-row__guarantee-label">{t("to")}</span>
-        <time dateTime={product.guarantee.end}>{formatNumericDate(product.guarantee.end)}</time>
+        <time dateTime={product.guarantee.end}>
+          {formatLongDate(product.guarantee.end, locale)}
+        </time>
+        <span className="product-row__caption">{formatNumericDate(product.guarantee.end)}</span>
       </div>
       <span>{product.isNew ? t("new") : t("used")}</span>
       <div className="product-row__price">
