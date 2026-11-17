@@ -12,9 +12,8 @@
   }
 
   &__details {
-    position: sticky;
-    top: calc(#{$header-height} + 32px);
     min-width: 0;
+    transition: margin-top 0.25s ease;
   }
 
   &__list {

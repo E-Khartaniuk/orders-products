@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDocumentTitle } from "@/i18n/use-document-title";
@@ -14,6 +14,7 @@ import { useAppSelector } from "@/store";
 import { useGetOrdersQuery } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
 import { OrderRow } from "./OrderRow";
+import { useActiveRowOffset } from "./use-active-row-offset";
 
 const CreateOrderDialog = dynamic(() =>
   import("./CreateOrderDialog").then((module) => module.CreateOrderDialog),
@@ -45,6 +46,8 @@ export function OrdersView({ children }: { children: ReactNode }) {
   const closeCreate = useCallback(() => setCreateOpen(false), []);
 
   const hasDetails = selectedId !== null;
+  const listRef = useRef<HTMLDivElement>(null);
+  const detailsOffset = useActiveRowOffset(listRef, hasDetails, [selectedId, data]);
 
   return (
     <>
@@ -56,7 +59,7 @@ export function OrdersView({ children }: { children: ReactNode }) {
       />
 
       <div className={clsx("orders", hasDetails && "orders--with-details")}>
-        <div>
+        <div ref={listRef}>
           {isLoading && <SkeletonList count={4} height={72} />}
           {isError && <StateMessage variant="error" message={t("loadError")} onRetry={refetch} />}
           {data && data.items.length === 0 && (
@@ -93,6 +96,7 @@ export function OrdersView({ children }: { children: ReactNode }) {
             <motion.section
               key={selectedId}
               className="orders__details"
+              style={{ marginTop: detailsOffset }}
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
