@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "@/lib/config";
+import type { CreateOrderPayload, CreateProductPayload } from "@/lib/schemas";
 import type { ListResponse, OrderDetails, OrderSummary, Product, ProductsQuery } from "@/types/api";
 
 export const api = createApi({
@@ -17,6 +18,10 @@ export const api = createApi({
     getOrder: build.query<OrderDetails, number>({
       query: (id) => `/orders/${id}`,
       providesTags: (_result, _error, id) => [{ type: "Order", id }],
+    }),
+    createOrder: build.mutation<OrderSummary, CreateOrderPayload>({
+      query: (body) => ({ url: "/orders", method: "POST", body }),
+      invalidatesTags: [{ type: "Order", id: "LIST" }],
     }),
     deleteOrder: build.mutation<void, number>({
       query: (id) => ({ url: `/orders/${id}`, method: "DELETE" }),
@@ -37,6 +42,15 @@ export const api = createApi({
       query: () => "/products/types",
       providesTags: [{ type: "Product", id: "TYPES" }],
     }),
+    createProduct: build.mutation<Product, CreateProductPayload>({
+      query: (body) => ({ url: "/products", method: "POST", body }),
+      invalidatesTags: (_result, _error, { orderId }) => [
+        { type: "Product", id: "LIST" },
+        { type: "Product", id: "TYPES" },
+        { type: "Order", id: orderId },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
     deleteProduct: build.mutation<void, { id: number; orderId: number }>({
       query: ({ id }) => ({ url: `/products/${id}`, method: "DELETE" }),
       invalidatesTags: (_result, _error, { id, orderId }) => [
@@ -53,8 +67,10 @@ export const api = createApi({
 export const {
   useGetOrdersQuery,
   useGetOrderQuery,
+  useCreateOrderMutation,
   useDeleteOrderMutation,
   useGetProductsQuery,
   useGetProductTypesQuery,
+  useCreateProductMutation,
   useDeleteProductMutation,
 } = api;

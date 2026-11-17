@@ -10,6 +10,7 @@ import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetOrdersQuery } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
+import { CreateOrderDialog } from "./CreateOrderDialog";
 import { DeleteOrderDialog } from "./DeleteOrderDialog";
 import { OrderRow } from "./OrderRow";
 
@@ -30,11 +31,19 @@ export function OrdersView({ children }: { children: ReactNode }) {
     [router, selectedId],
   );
 
+  const [createOpen, setCreateOpen] = useState(false);
+  const closeCreate = useCallback(() => setCreateOpen(false), []);
+
   const hasDetails = selectedId !== null;
 
   return (
     <>
-      <PageHeader title="Приходы" total={data?.total ?? 0} addLabel="Добавить приход" />
+      <PageHeader
+        title="Приходы"
+        total={data?.total ?? 0}
+        addLabel="Добавить приход"
+        onAdd={() => setCreateOpen(true)}
+      />
 
       <div className={clsx("orders", hasDetails && "orders--with-details")}>
         <div>
@@ -95,6 +104,7 @@ export function OrdersView({ children }: { children: ReactNode }) {
       </div>
 
       <DeleteOrderDialog order={orderToDelete} onClose={closeDialog} onDeleted={onDeleted} />
+      <CreateOrderDialog open={createOpen} onClose={closeCreate} />
     </>
   );
 }
