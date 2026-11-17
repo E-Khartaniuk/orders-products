@@ -1,0 +1,82 @@
+@use "../tokens" as *;
+
+.page-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 60px;
+  padding-left: 126px;
+
+  &__add {
+    @include round-button(40px);
+    background: $color-primary;
+    color: $color-surface;
+    font-size: 1rem;
+    box-shadow: 0 3px 8px rgba($color-primary-dark, 0.5);
+
+    &:hover {
+      box-shadow: 0 5px 12px rgba($color-primary-dark, 0.55);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  &__extra {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-left: 24px;
+  }
+
+  @media (max-width: 1440px) {
+    padding-left: 0;
+  }
+
+  @media (max-width: ($breakpoint-md - 1px)) {
+    margin-bottom: 28px;
+
+    &__title {
+      font-size: 1.375rem;
+    }
+
+    &__extra {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__label {
+    @include caption;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  &__select {
+    min-width: 230px;
+    height: 30px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-color: $color-border;
+    border-radius: $radius;
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    &:focus {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba($color-primary, 0.2);
+    }
+  }
+}

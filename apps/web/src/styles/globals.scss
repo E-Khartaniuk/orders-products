@@ -1,0 +1,59 @@
+@use "tokens" as *;
+@use "blocks/app-shell";
+@use "blocks/top-menu";
+@use "blocks/nav-menu";
+@use "blocks/page-header";
+@use "blocks/orders";
+@use "blocks/order-row";
+@use "blocks/order-details";
+@use "blocks/product-line";
+@use "blocks/products";
+@use "blocks/product-row";
+@use "blocks/confirm-dialog";
+@use "blocks/state";
+
+:root {
+  --bs-primary: #{$color-primary};
+  --bs-primary-rgb: 139, 195, 74;
+  --bs-body-color: #{$color-text};
+  --bs-body-bg: #{$color-bg};
+  --bs-body-font-family: var(--font-main), system-ui, sans-serif;
+  --bs-border-color: #{$color-border};
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: $color-bg;
+  color: $color-text;
+  font-family: var(--font-main), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.visually-hidden-focusable:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 8px 12px;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+}
+
+.icon-button {
+  @include round-button(28px);
+  background: transparent;
+  color: $color-text-soft;
+  font-size: 0.875rem;
+
+  &:hover {
+    color: $color-danger;
+  }
+}
+
+.min-w-0 {
+  min-width: 0;
+}
