@@ -1,15 +1,18 @@
 "use client";
 
 import clsx from "clsx";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { useTranslations } from "use-intl";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import { useAppSelector } from "@/store";
 
 const LINKS = [
   { href: "/orders", key: "orders" },
   { href: "/products", key: "products" },
+  { href: "/users", key: "users" },
+  { href: "/settings", key: "settingsPage" },
   { href: "/dashboard", key: "dashboard" },
 ] as const;
 
@@ -41,20 +44,20 @@ function ActiveNavLinks() {
 
 export function NavigationMenu() {
   const t = useTranslations("nav");
+  const avatarUrl = useAppSelector((state) => state.auth.user?.avatarUrl);
   return (
     <nav className="nav-menu" aria-label={t("label")}>
       <div className="nav-menu__profile">
-        <Image
+        <UserAvatar
           className="nav-menu__avatar"
-          src="/images/avatar.svg"
+          src={avatarUrl}
           alt={t("avatar")}
-          width={96}
-          height={96}
+          size={96}
           priority
         />
-        <button type="button" className="nav-menu__settings" aria-label={t("settings")}>
+        <Link href="/settings" className="nav-menu__settings" aria-label={t("settings")}>
           <i className="bi bi-gear-fill" aria-hidden="true" />
-        </button>
+        </Link>
       </div>
       <Suspense fallback={<NavLinks pathname={null} />}>
         <ActiveNavLinks />

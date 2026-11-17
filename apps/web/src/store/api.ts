@@ -16,8 +16,9 @@ import type {
   Product,
   ProductsQuery,
   RegisterPayload,
+  User,
 } from "@/types/api";
-import { credentialsReceived, loggedOut } from "./auth-slice";
+import { credentialsReceived, loggedOut, userUpdated } from "./auth-slice";
 import { baseQueryWithReauth } from "./base-query";
 
 export const api = createApi({
@@ -53,6 +54,34 @@ export const api = createApi({
         dispatch(loggedOut());
         dispatch(api.util.resetApiState());
       },
+    }),
+    updateProfile: build.mutation<{ user: User }, { name: string }>({
+      query: (body) => ({ url: "/profile", method: "PATCH", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    uploadAvatar: build.mutation<{ user: User }, File>({
+      query: (file) => {
+        const body = new FormData();
+        body.append("avatar", file);
+        return { url: "/profile/avatar", method: "PUT", body };
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    deleteAvatar: build.mutation<{ user: User }, void>({
+      query: () => ({ url: "/profile/avatar", method: "DELETE" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    changePassword: build.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: (body) => ({ url: "/auth/password", method: "PUT", body }),
     }),
     getOrders: build.query<ListResponse<OrderSummary>, { search?: string } | void>({
       query: (params) => ({ url: "/orders", params: params ?? undefined }),
@@ -139,4 +168,8 @@ export const {
   useRegisterMutation,
   useRestoreSessionMutation,
   useLogoutMutation,
+  useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useDeleteAvatarMutation,
+  useChangePasswordMutation,
 } = api;

@@ -15,6 +15,7 @@
 @use "blocks/state";
 @use "blocks/locale-switcher";
 @use "blocks/dashboard";
+@use "blocks/settings";
 
 :root {
   --bs-primary: #{$color-primary};
