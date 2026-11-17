@@ -15,6 +15,16 @@ export const prismaMock = {
     create: vi.fn(),
     delete: vi.fn(),
   },
+  user: {
+    findUnique: vi.fn(),
+    create: vi.fn(),
+  },
+  refreshSession: {
+    create: vi.fn(),
+    findUnique: vi.fn(),
+    delete: vi.fn(),
+    deleteMany: vi.fn(),
+  },
 };
 
 export function prismaError(code: string) {

@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    instantInsights: {
+      validationLevel: "manual-warning",
+    },
+  },
 };
 
 export default nextConfig;

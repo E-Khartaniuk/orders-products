@@ -92,6 +92,33 @@
     }
   }
 
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 24px;
+    border-left: 1px solid $color-border;
+  }
+
+  &__user-name {
+    max-width: 160px;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__logout {
+    @include round-button(32px);
+    background: $color-bg;
+    color: $color-text-muted;
+
+    &:hover:not(:disabled) {
+      color: $color-danger;
+    }
+  }
+
   &__sessions-dot {
     width: 8px;
     height: 8px;
@@ -121,12 +148,18 @@
     }
 
     &__logo-text,
-    &__search {
+    &__search,
+    &__user-name {
       display: none;
     }
 
     &__meta {
       gap: 12px;
+    }
+
+    &__user {
+      padding-left: 0;
+      border-left: 0;
     }
   }
 }
