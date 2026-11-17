@@ -1,4 +1,5 @@
 import { prisma } from "../../db.js";
+import { publish } from "../../events/bus.js";
 import { HttpError } from "../../lib/http-error.js";
 import { productInclude, toProductDto } from "./products.mapper.js";
 import type { CreateProductBody, ListProductsQuery } from "./products.schemas.js";
@@ -68,9 +69,14 @@ export async function createProduct(input: CreateProductBody) {
     include: productInclude,
   });
 
+  publish({ type: "product.created", productId: product.id, orderId: product.orderId });
   return toProductDto(product);
 }
 
 export async function deleteProduct(id: number) {
-  await prisma.product.delete({ where: { id } });
+  const product = await prisma.product.delete({
+    where: { id },
+    select: { id: true, orderId: true },
+  });
+  publish({ type: "product.deleted", productId: product.id, orderId: product.orderId });
 }
