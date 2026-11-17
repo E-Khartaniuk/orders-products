@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { persistedStateRestored } from "./persisted";
 
-type UiState = {
+export type UiState = {
   search: string;
   productTypeFilter: string;
 };
@@ -17,6 +18,14 @@ export const uiSlice = createSlice({
     productTypeFilterChanged: (state, action: PayloadAction<string>) => {
       state.productTypeFilter = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(persistedStateRestored, (state, { payload }) => {
+      if (payload.search !== undefined) state.search = payload.search;
+      if (payload.productTypeFilter !== undefined) {
+        state.productTypeFilter = payload.productTypeFilter;
+      }
+    });
   },
 });
 

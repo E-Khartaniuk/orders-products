@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { api } from "./api";
 import { authSlice } from "./auth-slice";
+import { persistenceMiddleware } from "./persistence-middleware";
 import { prefsSlice } from "./prefs-slice";
 import { sessionsSlice } from "./sessions-slice";
 import { uiSlice } from "./ui-slice";
@@ -17,7 +18,8 @@ const rootReducer = combineReducers({
 export function makeStore() {
   return configureStore({
     reducer: rootReducer,
-    middleware: (getDefault) => getDefault().concat(api.middleware),
+    middleware: (getDefault) =>
+      getDefault().prepend(persistenceMiddleware.middleware).concat(api.middleware),
   });
 }
 
