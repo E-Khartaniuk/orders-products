@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../db.js";
 import { HttpError } from "../../lib/http-error.js";
-import type { LoginBody, RegisterBody } from "./auth.schemas.js";
+import type { ChangePasswordBody, LoginBody, RegisterBody } from "./auth.schemas.js";
 import {
   hashToken,
   newSessionId,
@@ -123,4 +123,30 @@ export async function getMe(userId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new HttpError(401, "User no longer exists");
   return toUserDto(user);
+}
+
+export async function changePassword(
+  userId: number,
+  input: ChangePasswordBody,
+  currentRefreshToken: string | undefined,
+) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new HttpError(401, "User no longer exists");
+
+  const valid = await bcrypt.compare(input.currentPassword, user.passwordHash).catch(() => false);
+  if (!valid) {
+    throw new HttpError(400, "Validation failed", [
+      { path: "currentPassword", message: "Current password is incorrect" },
+    ]);
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await bcrypt.hash(input.newPassword, BCRYPT_ROUNDS) },
+  });
+  await prisma.refreshSession.deleteMany({
+    where: currentRefreshToken
+      ? { userId, NOT: { tokenHash: hashToken(currentRefreshToken) } }
+      : { userId },
+  });
 }
