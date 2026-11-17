@@ -1,0 +1,94 @@
+@use "../tokens" as *;
+
+.product-row {
+  display: grid;
+  grid-template-columns:
+    12px 56px minmax(220px, 1.3fr) 100px 140px 70px 110px minmax(160px, 1fr) minmax(120px, 0.7fr)
+    minmax(160px, 1fr) 90px 28px;
+  align-items: center;
+  column-gap: 20px;
+  min-height: 50px;
+  padding: 6px 20px;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+  font-size: 0.8125rem;
+  transition: box-shadow $transition;
+
+  &:hover {
+    box-shadow: $shadow-card;
+  }
+
+  &__title {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    color: $color-text;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    @include underline-link;
+  }
+
+  &__serial {
+    @include caption;
+  }
+
+  &__guarantee {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 8px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  &__guarantee-label {
+    @include caption;
+  }
+
+  &__price {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  &__caption {
+    @include caption;
+  }
+
+  &__currency {
+    font-size: 0.6875rem;
+  }
+
+  &__link {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: $color-text;
+    font-size: 0.9375rem;
+    line-height: 1.25;
+    text-decoration: underline;
+    text-decoration-color: $color-text-soft;
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: $color-primary-dark;
+    }
+  }
+
+  &__muted {
+    color: $color-text-muted;
+  }
+
+  &__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .product-thumb {
+    width: 48px;
+  }
+}

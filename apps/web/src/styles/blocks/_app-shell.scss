@@ -1,0 +1,38 @@
+@use "../tokens" as *;
+
+.app-shell {
+  min-height: 100vh;
+
+  &__sidebar {
+    position: fixed;
+    top: $header-height;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    width: $sidebar-width;
+    background: $color-surface;
+    box-shadow: 4px 0 16px rgba(44, 58, 70, 0.06);
+    overflow-y: auto;
+  }
+
+  &__main {
+    min-height: 100vh;
+    padding: calc(#{$header-height} + 48px) 40px 48px calc(#{$sidebar-width} + 40px);
+    min-width: 0;
+  }
+
+  @media (max-width: ($breakpoint-lg - 1px)) {
+    &__sidebar {
+      top: auto;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: auto;
+      box-shadow: 0 -4px 16px rgba(44, 58, 70, 0.08);
+    }
+
+    &__main {
+      padding: calc(#{$header-height} + 24px) 16px 96px;
+    }
+  }
+}
