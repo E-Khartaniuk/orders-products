@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { api } from "./api";
 import { authSlice } from "./auth-slice";
 import { persistenceMiddleware } from "./persistence-middleware";
+import { serverEventsMiddleware } from "./server-events";
 import { prefsSlice } from "./prefs-slice";
 import { sessionsSlice } from "./sessions-slice";
 import { uiSlice } from "./ui-slice";
@@ -19,7 +20,9 @@ export function makeStore() {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefault) =>
-      getDefault().prepend(persistenceMiddleware.middleware).concat(api.middleware),
+      getDefault()
+        .prepend(persistenceMiddleware.middleware, serverEventsMiddleware.middleware)
+        .concat(api.middleware),
   });
 }
 

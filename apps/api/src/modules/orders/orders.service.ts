@@ -1,4 +1,5 @@
 import { prisma } from "../../db.js";
+import { publish } from "../../events/bus.js";
 import { HttpError } from "../../lib/http-error.js";
 import { sumByCurrency, type PriceLike } from "../../lib/money.js";
 import { productInclude, toProductDto } from "../products/products.mapper.js";
@@ -88,6 +89,7 @@ export async function createOrder(input: CreateOrderBody) {
     include: summaryInclude,
   });
 
+  publish({ type: "order.created", orderId: order.id });
   return toOrderSummary(order);
 }
 
@@ -98,9 +100,11 @@ export async function updateOrder(id: number, input: UpdateOrderBody) {
     data: { ...data, ...toLocationColumns(location) },
     include: summaryInclude,
   });
+  publish({ type: "order.updated", orderId: order.id });
   return toOrderSummary(order);
 }
 
 export async function deleteOrder(id: number) {
   await prisma.order.delete({ where: { id } });
+  publish({ type: "order.deleted", orderId: id });
 }
