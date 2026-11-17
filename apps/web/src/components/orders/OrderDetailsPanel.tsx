@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
+import { AddProductDialog } from "@/components/products/AddProductDialog";
 import { DeleteProductDialog } from "@/components/products/DeleteProductDialog";
 import { ProductLine } from "@/components/products/ProductLine";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
@@ -24,6 +25,8 @@ export function OrderDetailsPanel() {
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const closeDialog = useCallback(() => setProductToDelete(null), []);
+  const [addOpen, setAddOpen] = useState(false);
+  const closeAdd = useCallback(() => setAddOpen(false), []);
 
   const notFound = isError && "status" in error && error.status === 404;
 
@@ -53,7 +56,7 @@ export function OrderDetailsPanel() {
         <>
           <header className="order-details__header">
             <h2 className="order-details__title">{order.title}</h2>
-            <button type="button" className="order-details__add">
+            <button type="button" className="order-details__add" onClick={() => setAddOpen(true)}>
               <i className="bi bi-plus-circle-fill" aria-hidden="true" />
               Добавить продукт
             </button>
@@ -71,6 +74,10 @@ export function OrderDetailsPanel() {
       )}
 
       <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      <AddProductDialog
+        order={addOpen && order ? { id: order.id, title: order.title } : null}
+        onClose={closeAdd}
+      />
     </div>
   );
 }

@@ -9,7 +9,8 @@
 @use "blocks/product-line";
 @use "blocks/products";
 @use "blocks/product-row";
-@use "blocks/confirm-dialog";
+@use "blocks/dialog";
+@use "blocks/form";
 @use "blocks/state";
 
 :root {
