@@ -176,9 +176,8 @@ query OrderDetails($id: ID!) {
 - [x] Orders: список, панель деталей, удаление с попапом
 - [x] Products: список, фильтр по типу
 - [x] Формы с валидацией
-- [x] GraphQL
+- [x] GraphQL (требование «Graph (на ваш выбор)»)
 - [x] i18n, lazy loading, WebStorage, charts, maps
 - [x] WebWorkers, PWA, event-driven обновления
-- [ ] Graph
 - [ ] Unit, интеграционные и e2e тесты
 - [ ] Деплой на VDS
