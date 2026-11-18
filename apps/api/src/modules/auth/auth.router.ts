@@ -3,7 +3,14 @@ import { rateLimit } from "express-rate-limit";
 import { config } from "../../config.js";
 import { getAuth, requireAuth } from "../../middleware/require-auth.js";
 import { validate, type Validated } from "../../middleware/validate.js";
-import { loginBody, registerBody, type LoginBody, type RegisterBody } from "./auth.schemas.js";
+import {
+  changePasswordBody,
+  loginBody,
+  registerBody,
+  type ChangePasswordBody,
+  type LoginBody,
+  type RegisterBody,
+} from "./auth.schemas.js";
 import * as authService from "./auth.service.js";
 
 export const REFRESH_COOKIE = "refresh_token";
@@ -66,3 +73,19 @@ authRouter.post("/logout", async (req, res) => {
 authRouter.get("/me", requireAuth, async (_req, res) => {
   res.json({ user: await authService.getMe(getAuth(res.locals).userId) });
 });
+
+authRouter.put(
+  "/password",
+  requireAuth,
+  credentialsLimiter,
+  validate({ body: changePasswordBody }),
+  async (req, res) => {
+    const { body } = res.locals.validated as Validated<unknown, unknown, ChangePasswordBody>;
+    await authService.changePassword(
+      getAuth(res.locals).userId,
+      body,
+      req.cookies?.[REFRESH_COOKIE],
+    );
+    res.status(204).end();
+  },
+);

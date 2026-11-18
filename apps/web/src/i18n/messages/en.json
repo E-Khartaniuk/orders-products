@@ -3,7 +3,9 @@
     "orders": "Orders",
     "products": "Products",
     "login": "Sign in",
-    "register": "Sign up"
+    "register": "Sign up",
+    "users": "Users",
+    "settings": "Settings"
   },
   "common": {
     "loading": "Loading…",
@@ -22,7 +24,9 @@
     "products": "Products",
     "avatar": "User avatar",
     "settings": "Profile settings",
-    "dashboard": "Analytics"
+    "dashboard": "Analytics",
+    "users": "Users",
+    "settingsPage": "Settings"
   },
   "header": {
     "home": "Inventory — home",
@@ -185,5 +189,46 @@
       "value": "Value, UAH"
     },
     "openOrder": "Open order"
+  },
+  "users": {
+    "title": "Users",
+    "placeholder": "This section is under construction"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "avatarAlt": "Profile photo",
+      "upload": "Upload photo",
+      "uploading": "Uploading…",
+      "remove": "Remove photo",
+      "avatarHint": "PNG, JPEG or WebP, up to 2 MB",
+      "avatarType": "Only PNG, JPEG and WebP are supported",
+      "avatarSize": "The file is larger than 2 MB",
+      "avatarError": "Failed to update the photo",
+      "name": "Name",
+      "email": "Email",
+      "emailHint": "Email is used to sign in and cannot be changed",
+      "save": "Save",
+      "saved": "Saved",
+      "saveError": "Failed to save the profile"
+    },
+    "password": {
+      "title": "Change password",
+      "description": "Other sessions will be signed out after the change",
+      "current": "Current password",
+      "new": "New password",
+      "hint": "At least 8 characters, letters and digits",
+      "confirm": "Repeat new password",
+      "submit": "Change password",
+      "saved": "Password changed",
+      "error": "Failed to change the password",
+      "wrongCurrent": "Current password is incorrect",
+      "tooMany": "Too many attempts. Try again later"
+    },
+    "interface": {
+      "title": "Interface",
+      "language": "Language"
+    }
   }
 }

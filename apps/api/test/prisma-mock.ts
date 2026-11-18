@@ -18,6 +18,7 @@ export const prismaMock = {
   user: {
     findUnique: vi.fn(),
     create: vi.fn(),
+    update: vi.fn(),
   },
   refreshSession: {
     create: vi.fn(),

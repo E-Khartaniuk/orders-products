@@ -10,6 +10,7 @@ export async function authedClient(app: Express) {
     get: (url: string) => request(app).get(url).set(auth),
     post: (url: string) => request(app).post(url).set(auth),
     patch: (url: string) => request(app).patch(url).set(auth),
+    put: (url: string) => request(app).put(url).set(auth),
     delete: (url: string) => request(app).delete(url).set(auth),
   };
 }

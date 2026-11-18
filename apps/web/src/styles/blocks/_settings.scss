@@ -1,0 +1,128 @@
+@use "../tokens" as *;
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 720px;
+
+  &__section {
+    padding: 24px 28px;
+    border: 1px solid $color-border;
+    border-radius: $radius;
+    background: $color-surface;
+  }
+
+  &__title {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  &__hint {
+    margin: 0 0 12px;
+    color: $color-text-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__avatar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  &__avatar-image {
+    flex-shrink: 0;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: $shadow-round;
+  }
+
+  &__avatar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+
+    .settings__hint,
+    .form__error {
+      flex-basis: 100%;
+      margin: 0;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 420px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border: 1px solid $color-primary-dark;
+    border-radius: $radius;
+    background: $color-primary-dark;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition:
+      background $transition,
+      border-color $transition;
+
+    &:hover:not(:disabled) {
+      border-color: #689f38;
+      background: #689f38;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-text;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    &--ghost {
+      background: transparent;
+      color: $color-text;
+      border-color: $color-border;
+
+      &:hover:not(:disabled) {
+        border-color: $color-danger;
+        background: transparent;
+        color: $color-danger;
+      }
+    }
+  }
+
+  &__saved {
+    color: $color-primary-dark;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+  }
+}

@@ -20,6 +20,9 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
     },
+    userUpdated: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+    },
     loggedOut: (state) => {
       state.status = "anonymous";
       state.user = null;
@@ -28,4 +31,4 @@ export const authSlice = createSlice({
   },
 });
 
-export const { credentialsReceived, loggedOut } = authSlice.actions;
+export const { credentialsReceived, loggedOut, userUpdated } = authSlice.actions;

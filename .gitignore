@@ -12,3 +12,4 @@ apps/api/src/generated/
 .DS_Store
 Thumbs.db
 *.log
+apps/api/uploads/
