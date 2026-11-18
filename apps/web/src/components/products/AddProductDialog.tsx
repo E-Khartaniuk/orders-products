@@ -16,7 +16,7 @@ import {
   type ProductFormValues,
 } from "@/lib/schemas";
 import { useApiErrorParser } from "@/lib/use-api-error";
-import { AVATAR_TYPES, checkAvatarFile } from "@/lib/profile-schemas";
+import { IMAGE_TYPES, checkImageFile } from "@/lib/image-files";
 import { useSchema } from "@/lib/use-schema";
 import {
   useCreateProductMutation,
@@ -106,7 +106,7 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
     const file = event.target.files?.[0] ?? null;
     event.target.value = "";
     if (!file) return;
-    const problem = checkAvatarFile(file);
+    const problem = checkImageFile(file);
     if (problem) {
       setPhotoError(problem === "type" ? t("photoType") : t("photoSize"));
       return;
@@ -311,7 +311,7 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
                 <label className="form__photo-pick">
                   <input
                     type="file"
-                    accept={AVATAR_TYPES.join(",")}
+                    accept={IMAGE_TYPES.join(",")}
                     className="visually-hidden"
                     onChange={onPhotoChange}
                   />

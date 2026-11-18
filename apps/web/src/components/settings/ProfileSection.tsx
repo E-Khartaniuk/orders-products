@@ -7,9 +7,8 @@ import { useTranslations } from "use-intl";
 import type { z } from "zod";
 import { FormField, fieldA11y } from "@/components/ui/FormField";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { IMAGE_TYPES, checkImageFile } from "@/lib/image-files";
 import {
-  AVATAR_TYPES,
-  checkAvatarFile,
   createProfileFormSchema,
   type ProfileFormSchema,
   type ProfileFormValues,
@@ -69,7 +68,7 @@ export function ProfileSection({ user }: { user: User }) {
     event.target.value = "";
     if (!file) return;
 
-    const problem = checkAvatarFile(file);
+    const problem = checkImageFile(file);
     if (problem) {
       setAvatarError(problem === "type" ? t("avatarType") : t("avatarSize"));
       return;
@@ -112,7 +111,7 @@ export function ProfileSection({ user }: { user: User }) {
           <input
             ref={fileInput}
             type="file"
-            accept={AVATAR_TYPES.join(",")}
+            accept={IMAGE_TYPES.join(",")}
             className="visually-hidden"
             tabIndex={-1}
             aria-hidden="true"

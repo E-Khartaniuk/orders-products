@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState, type ChangeEvent } from "react";
 import { useTranslations } from "use-intl";
 import { Dialog, DialogError } from "@/components/ui/Dialog";
-import { AVATAR_TYPES, checkAvatarFile } from "@/lib/profile-schemas";
+import { IMAGE_TYPES, checkImageFile } from "@/lib/image-files";
 import { useApiErrorParser } from "@/lib/use-api-error";
 import { useDeleteProductPhotoMutation, useUploadProductPhotoMutation } from "@/store/api";
 import type { Product } from "@/types/api";
@@ -39,7 +39,7 @@ export function ProductPhotoDialog({ product, onClose }: ProductPhotoDialogProps
     event.target.value = "";
     if (!file || !product) return;
 
-    const problem = checkAvatarFile(file);
+    const problem = checkImageFile(file);
     if (problem) {
       setError(problem === "type" ? t("type") : t("size"));
       return;
@@ -77,7 +77,7 @@ export function ProductPhotoDialog({ product, onClose }: ProductPhotoDialogProps
         <input
           ref={fileInput}
           type="file"
-          accept={AVATAR_TYPES.join(",")}
+          accept={IMAGE_TYPES.join(",")}
           className="visually-hidden"
           tabIndex={-1}
           aria-hidden="true"

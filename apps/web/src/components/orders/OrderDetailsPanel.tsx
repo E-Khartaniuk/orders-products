@@ -7,17 +7,25 @@ import { useCallback, useState } from "react";
 import { useTranslations } from "use-intl";
 import { ProductLine } from "@/components/products/ProductLine";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
+import { LazyMount } from "@/components/ui/LazyMount";
 import { useGetOrderQuery } from "@/store/api";
 import type { Product } from "@/types/api";
 
-const AddProductDialog = dynamic(() =>
-  import("@/components/products/AddProductDialog").then((module) => module.AddProductDialog),
+const AddProductDialog = dynamic(
+  () => import("@/components/products/AddProductDialog").then((module) => module.AddProductDialog),
+  { ssr: false },
 );
-const ProductPhotoDialog = dynamic(() =>
-  import("@/components/products/ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+const ProductPhotoDialog = dynamic(
+  () =>
+    import("@/components/products/ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+  { ssr: false },
 );
-const DeleteProductDialog = dynamic(() =>
-  import("@/components/products/DeleteProductDialog").then((module) => module.DeleteProductDialog),
+const DeleteProductDialog = dynamic(
+  () =>
+    import("@/components/products/DeleteProductDialog").then(
+      (module) => module.DeleteProductDialog,
+    ),
+  { ssr: false },
 );
 
 export function OrderDetailsPanel() {
@@ -92,12 +100,18 @@ export function OrderDetailsPanel() {
         </>
       )}
 
-      <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
-      <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
-      <AddProductDialog
-        order={addOpen && order ? { id: order.id, title: order.title } : null}
-        onClose={closeAdd}
-      />
+      <LazyMount when={productToDelete !== null}>
+        <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      </LazyMount>
+      <LazyMount when={photoProduct !== null}>
+        <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      </LazyMount>
+      <LazyMount when={addOpen}>
+        <AddProductDialog
+          order={addOpen && order ? { id: order.id, title: order.title } : null}
+          onClose={closeAdd}
+        />
+      </LazyMount>
     </div>
   );
 }

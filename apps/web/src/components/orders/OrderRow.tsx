@@ -7,6 +7,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import { useLocale, useTranslations } from "use-intl";
 import { formatLongDate, formatMonthOfYear } from "@/lib/format";
 import { useOverflowTitle } from "@/lib/use-overflow-title";
+import { usePrefetch } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
 import { Price } from "./Price";
 
@@ -19,6 +20,8 @@ type OrderRowProps = {
 
 export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
   const router = useRouter();
+  const prefetchOrder = usePrefetch("getOrder");
+  const prefetch = () => prefetchOrder(order.id, { ifOlderThan: 30 });
   const t = useTranslations("orders");
   const locale = useLocale();
   const href = `/orders/${order.id}`;
@@ -45,6 +48,8 @@ export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
       aria-current={active ? "true" : undefined}
       aria-label={order.title}
       onClick={open}
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
       onKeyDown={onKeyDown}
     >
       <div className="order-row__title" onMouseEnter={showTitleIfCut}>

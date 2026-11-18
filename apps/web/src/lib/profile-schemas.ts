@@ -1,9 +1,6 @@
 import { z } from "zod";
 import type { ValidationT } from "./validation";
 
-export const AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
-export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
-
 export const createProfileFormSchema = (t: ValidationT) =>
   z.object({
     name: z
@@ -35,11 +32,3 @@ export const createPasswordFormSchema = (t: ValidationT) =>
 
 export type PasswordFormSchema = ReturnType<typeof createPasswordFormSchema>;
 export type PasswordFormValues = z.input<PasswordFormSchema>;
-
-export type AvatarProblem = "type" | "size";
-
-export function checkAvatarFile(file: { type: string; size: number }): AvatarProblem | null {
-  if (!(AVATAR_TYPES as readonly string[]).includes(file.type)) return "type";
-  if (file.size > AVATAR_MAX_BYTES) return "size";
-  return null;
-}

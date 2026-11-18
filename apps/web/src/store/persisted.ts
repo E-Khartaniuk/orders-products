@@ -1,29 +1,35 @@
 import { createAction } from "@reduxjs/toolkit";
-import { z } from "zod";
-import { LOCALES } from "@/i18n/config";
-import { readJson } from "@/lib/storage";
+import { isLocale, type Locale } from "@/i18n/config";
+import { isOptionalString, isRecord, readJson } from "@/lib/storage";
 
 export const PREFS_KEY = "op:prefs:v1";
 export const SESSION_KEY = "op:session:v1";
 
-export const prefsSchema = z.object({
-  locale: z.enum(LOCALES).optional(),
-  productTypeFilter: z.string().max(64).optional(),
-});
-
-export const sessionSchema = z.object({
-  search: z.string().max(200).optional(),
-});
-
-export type PersistedPrefs = z.infer<typeof prefsSchema>;
-export type PersistedSession = z.infer<typeof sessionSchema>;
+export type PersistedPrefs = { locale?: Locale; productTypeFilter?: string };
+export type PersistedSession = { search?: string };
 export type PersistedState = PersistedPrefs & PersistedSession;
+
+export function parsePrefs(value: unknown): PersistedPrefs | null {
+  if (!isRecord(value)) return null;
+  const { locale, productTypeFilter } = value;
+  if (locale !== undefined && !isLocale(locale)) return null;
+  if (!isOptionalString(productTypeFilter, 64)) return null;
+  return {
+    ...(locale !== undefined && { locale }),
+    ...(productTypeFilter !== undefined && { productTypeFilter: productTypeFilter as string }),
+  };
+}
+
+export function parseSession(value: unknown): PersistedSession | null {
+  if (!isRecord(value) || !isOptionalString(value.search, 200)) return null;
+  return value.search === undefined ? {} : { search: value.search as string };
+}
 
 export const persistedStateRestored = createAction<PersistedState>("persistence/restored");
 
 export function readPersistedState(local: Storage | null, session: Storage | null): PersistedState {
   return {
-    ...readJson(local, PREFS_KEY, prefsSchema),
-    ...readJson(session, SESSION_KEY, sessionSchema),
+    ...readJson(local, PREFS_KEY, parsePrefs),
+    ...readJson(session, SESSION_KEY, parseSession),
   };
 }
