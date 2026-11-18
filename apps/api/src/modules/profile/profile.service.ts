@@ -31,7 +31,7 @@ async function findUser(userId: number) {
 }
 
 export async function updateProfile(userId: number, input: UpdateProfileBody) {
-  const user = await prisma.user.update({ where: { id: userId }, data: { name: input.name } });
+  const user = await prisma.user.update({ where: { id: userId }, data: input });
   return toUserDto(user);
 }
 

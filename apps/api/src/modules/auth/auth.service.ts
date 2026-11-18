@@ -14,13 +14,20 @@ import {
 const BCRYPT_ROUNDS = 10;
 const DUMMY_HASH = bcrypt.hashSync("timing-safe-placeholder", BCRYPT_ROUNDS);
 
-type UserRecord = { id: number; email: string; name: string; avatarUrl: string | null };
+type UserRecord = {
+  id: number;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  locale?: string | null;
+};
 
 export const toUserDto = (user: UserRecord) => ({
   id: user.id,
   email: user.email,
   name: user.name,
   avatarUrl: user.avatarUrl,
+  locale: user.locale ?? null,
 });
 
 export type UserDto = ReturnType<typeof toUserDto>;
@@ -59,6 +66,7 @@ export async function register(input: RegisterBody, userAgent?: string) {
     data: {
       email: input.email,
       name: input.name,
+      locale: input.locale,
       passwordHash: await bcrypt.hash(input.password, BCRYPT_ROUNDS),
     },
   });

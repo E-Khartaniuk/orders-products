@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { api } from "./api";
 import { authSlice } from "./auth-slice";
+import { localeSyncMiddleware } from "./locale-sync";
 import { persistenceMiddleware } from "./persistence-middleware";
 import { serverEventsMiddleware } from "./server-events";
 import { prefsSlice } from "./prefs-slice";
@@ -21,7 +22,11 @@ export function makeStore() {
     reducer: rootReducer,
     middleware: (getDefault) =>
       getDefault()
-        .prepend(persistenceMiddleware.middleware, serverEventsMiddleware.middleware)
+        .prepend(
+          persistenceMiddleware.middleware,
+          serverEventsMiddleware.middleware,
+          localeSyncMiddleware.middleware,
+        )
         .concat(api.middleware),
   });
 }

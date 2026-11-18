@@ -43,6 +43,7 @@ export const typeDefs = /* GraphQL */ `
     email: String!
     name: String!
     avatarUrl: String
+    locale: String
   }
 
   type Product {

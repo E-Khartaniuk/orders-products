@@ -25,6 +25,7 @@ model User {
   passwordHash String           @map("password_hash") @db.VarChar(255)
   name         String           @db.VarChar(120)
   avatarUrl    String?          @map("avatar_url") @db.VarChar(500)
+  locale       String?          @db.VarChar(5)
   createdAt    DateTime         @default(now()) @map("created_at")
   products     Product[]
   sessions     RefreshSession[]

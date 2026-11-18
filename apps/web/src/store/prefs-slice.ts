@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "@/i18n/config";
+import { credentialsReceived, userUpdated } from "./auth-slice";
 import { persistedStateRestored } from "./persisted";
 
 export type PrefsState = {
@@ -19,6 +20,12 @@ export const prefsSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(persistedStateRestored, (state, { payload }) => {
       if (payload.locale) state.locale = payload.locale;
+    });
+    builder.addCase(credentialsReceived, (state, { payload }) => {
+      if (isLocale(payload.user.locale)) state.locale = payload.user.locale;
+    });
+    builder.addCase(userUpdated, (state, { payload }) => {
+      if (isLocale(payload.locale)) state.locale = payload.locale;
     });
   },
 });

@@ -138,3 +138,23 @@ describe("PUT /api/auth/password", () => {
     expect(prismaMock.user.update).not.toHaveBeenCalled();
   });
 });
+
+describe("user locale", () => {
+  it("saves the interface language in the profile", async () => {
+    prismaMock.user.update.mockResolvedValue({ ...user, locale: "en" });
+
+    const res = await api.patch("/api/profile").send({ locale: "en" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.locale).toBe("en");
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { locale: "en" },
+    });
+  });
+
+  it("rejects unsupported languages and empty updates", async () => {
+    expect((await api.patch("/api/profile").send({ locale: "de" })).status).toBe(400);
+    expect((await api.patch("/api/profile").send({})).status).toBe(400);
+  });
+});
