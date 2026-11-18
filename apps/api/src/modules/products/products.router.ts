@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { imageUpload, requireFile } from "../../lib/uploads.js";
 import { validate, type Validated } from "../../middleware/validate.js";
 import {
   createProductBody,
@@ -35,4 +36,19 @@ productsRouter.delete("/:id", validate({ params: productIdParams }), async (_req
   const { params } = res.locals.validated as Validated<{ id: number }>;
   await productsService.deleteProduct(params.id);
   res.status(204).end();
+});
+
+productsRouter.put(
+  "/:id/photo",
+  validate({ params: productIdParams }),
+  imageUpload("photo"),
+  async (req, res) => {
+    const { params } = res.locals.validated as Validated<{ id: number }>;
+    res.json(await productsService.setProductPhoto(params.id, requireFile(req.file, "photo")));
+  },
+);
+
+productsRouter.delete("/:id/photo", validate({ params: productIdParams }), async (_req, res) => {
+  const { params } = res.locals.validated as Validated<{ id: number }>;
+  res.json(await productsService.removeProductPhoto(params.id));
 });

@@ -140,6 +140,7 @@ describe("PATCH /api/orders/:id", () => {
 
 describe("DELETE /api/orders/:id", () => {
   it("deletes an order", async () => {
+    prismaMock.product.findMany.mockResolvedValue([]);
     prismaMock.order.delete.mockResolvedValue(orderRecord);
 
     const res = await api.delete("/api/orders/1");

@@ -5,6 +5,7 @@ export type DomainEventPayload =
   | { type: "order.updated"; orderId: number }
   | { type: "order.deleted"; orderId: number }
   | { type: "product.created"; productId: number; orderId: number }
+  | { type: "product.updated"; productId: number; orderId: number }
   | { type: "product.deleted"; productId: number; orderId: number };
 
 export type DomainEvent = DomainEventPayload & { occurredAt: string };

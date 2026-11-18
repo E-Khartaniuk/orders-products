@@ -14,7 +14,7 @@ const envSchema = z
     ACCESS_TOKEN_TTL: z.string().default("15m"),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
     UPLOADS_DIR: z.string().default(path.resolve("uploads")),
-    AVATAR_MAX_BYTES: z.coerce
+    IMAGE_MAX_BYTES: z.coerce
       .number()
       .int()
       .positive()

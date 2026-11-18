@@ -1,6 +1,7 @@
 import { prisma } from "../../db.js";
 import { publish } from "../../events/bus.js";
 import { HttpError } from "../../lib/http-error.js";
+import { removeStoredImage, storeImage } from "../../lib/uploads.js";
 import { productInclude, toProductDto } from "./products.mapper.js";
 import type { CreateProductBody, ListProductsQuery } from "./products.schemas.js";
 
@@ -76,7 +77,39 @@ export async function createProduct(input: CreateProductBody) {
 export async function deleteProduct(id: number) {
   const product = await prisma.product.delete({
     where: { id },
-    select: { id: true, orderId: true },
+    select: { id: true, orderId: true, photo: true },
   });
+  await removeStoredImage(product.photo);
   publish({ type: "product.deleted", productId: product.id, orderId: product.orderId });
+}
+
+async function findPhoto(id: number) {
+  const product = await prisma.product.findUnique({ where: { id }, select: { photo: true } });
+  if (!product) throw HttpError.notFound("Product", id);
+  return product.photo;
+}
+
+async function updatePhoto(id: number, photo: string | null) {
+  const product = await prisma.product.update({
+    where: { id },
+    data: { photo },
+    include: productInclude,
+  });
+  publish({ type: "product.updated", productId: product.id, orderId: product.orderId });
+  return toProductDto(product);
+}
+
+export async function setProductPhoto(id: number, file: Buffer) {
+  const previous = await findPhoto(id);
+  const photo = await storeImage("products", String(id), file);
+  const product = await updatePhoto(id, photo);
+  await removeStoredImage(previous);
+  return product;
+}
+
+export async function removeProductPhoto(id: number) {
+  const previous = await findPhoto(id);
+  const product = await updatePhoto(id, null);
+  await removeStoredImage(previous);
+  return product;
 }
