@@ -47,16 +47,18 @@ export function ProductRow({ product, onDelete }: ProductRowProps) {
       <div className="product-row__price">
         <Price prices={product.prices} blockClass="product-row" />
       </div>
-      <div className="min-w-0">
+      <div className="product-row__people">
         {product.group ? (
-          <span className="product-row__link">{product.group.title}</span>
+          <span className="product-row__person" title={product.group.title}>
+            {product.group.title}
+          </span>
         ) : (
           <span className="product-row__muted">—</span>
         )}
-      </div>
-      <div className="min-w-0">
         {product.user ? (
-          <span className="product-row__link">{product.user.name}</span>
+          <span className="product-row__person product-row__person--user" title={product.user.name}>
+            {product.user.name}
+          </span>
         ) : (
           <span className="product-row__muted">—</span>
         )}
