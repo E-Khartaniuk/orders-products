@@ -30,7 +30,8 @@
     "online": "Online:",
     "onlineHint": "Open application tabs",
     "logout": "Sign out",
-    "language": "Interface language"
+    "language": "Interface language",
+    "closeSearch": "Close search"
   },
   "orders": {
     "title": "Orders",
