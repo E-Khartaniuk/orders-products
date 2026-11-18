@@ -45,6 +45,7 @@ describe("POST /api/auth/login", () => {
       email: "demo@inventory.local",
       name: "Demo User",
       avatarUrl: null,
+      locale: null,
     });
     expect(res.body.user.passwordHash).toBeUndefined();
     expect(res.body.accessToken).toEqual(expect.any(String));

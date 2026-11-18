@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const LOCALES = ["ru", "en"] as const;
+
 const email = z.string().trim().toLowerCase().pipe(z.email().max(191));
 
 const newPassword = z
@@ -18,6 +20,7 @@ export const registerBody = z.object({
   email,
   name: z.string().trim().min(2).max(120),
   password: newPassword,
+  locale: z.enum(LOCALES).optional(),
 });
 
 export const changePasswordBody = z.object({

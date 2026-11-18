@@ -55,7 +55,7 @@ export const api = createApi({
         dispatch(api.util.resetApiState());
       },
     }),
-    updateProfile: build.mutation<{ user: User }, { name: string }>({
+    updateProfile: build.mutation<{ user: User }, { name?: string; locale?: "ru" | "en" }>({
       query: (body) => ({ url: "/profile", method: "PATCH", body }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled.catch(() => ({ data: null }));

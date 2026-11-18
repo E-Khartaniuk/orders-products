@@ -56,6 +56,7 @@ export type User = {
   email: string;
   name: string;
   avatarUrl: string | null;
+  locale: "ru" | "en" | null;
 };
 
 export type AuthResponse = {
@@ -65,7 +66,7 @@ export type AuthResponse = {
 
 export type LoginPayload = { email: string; password: string };
 
-export type RegisterPayload = LoginPayload & { name: string };
+export type RegisterPayload = LoginPayload & { name: string; locale?: "ru" | "en" };
 
 export type ProductsQuery = {
   type?: string;

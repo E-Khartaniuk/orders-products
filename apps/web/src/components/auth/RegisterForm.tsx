@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { useTranslations } from "use-intl";
+import { useLocale, useTranslations } from "use-intl";
 import type { z } from "zod";
 import { FormField, fieldA11y } from "@/components/ui/FormField";
 import { Splash } from "@/components/ui/Splash";
@@ -25,6 +25,7 @@ export function RegisterForm() {
   const { status, target } = useRedirectWhenAuthenticated();
   const [registerUser] = useRegisterMutation();
   const t = useTranslations("auth");
+  const locale = useLocale();
   const parseError = useApiErrorParser();
   const schema = useSchema(createRegisterFormSchema);
   useDocumentTitle(t("register.title"));
@@ -42,7 +43,7 @@ export function RegisterForm() {
 
   const onSubmit = handleSubmit(async ({ name, email, password }) => {
     try {
-      await registerUser({ name, email, password }).unwrap();
+      await registerUser({ name, email, password, locale }).unwrap();
     } catch (error) {
       const parsed = parseError(error, t("register.error"));
       if (parsed.status === 409) {
