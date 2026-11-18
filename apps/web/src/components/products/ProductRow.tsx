@@ -11,16 +11,23 @@ import { ProductThumb } from "./ProductThumb";
 type ProductRowProps = {
   product: Product;
   onDelete: (product: Product) => void;
+  onPhoto: (product: Product) => void;
 };
 
-export function ProductRow({ product, onDelete }: ProductRowProps) {
+export function ProductRow({ product, onDelete, onPhoto }: ProductRowProps) {
   const t = useTranslations("products");
   const locale = useLocale();
 
   return (
     <div className="product-row">
       <StatusDot status={product.status} />
-      <ProductThumb src={product.photo} alt="" />
+      <ProductThumb
+        src={product.photo}
+        type={product.type}
+        alt=""
+        onClick={() => onPhoto(product)}
+        label={t("photo.open", { title: product.title })}
+      />
       <div className="min-w-0">
         <span className="product-row__title" title={product.title}>
           {product.title}

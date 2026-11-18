@@ -13,6 +13,9 @@ import type { Product } from "@/types/api";
 const AddProductDialog = dynamic(() =>
   import("@/components/products/AddProductDialog").then((module) => module.AddProductDialog),
 );
+const ProductPhotoDialog = dynamic(() =>
+  import("@/components/products/ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+);
 const DeleteProductDialog = dynamic(() =>
   import("@/components/products/DeleteProductDialog").then((module) => module.DeleteProductDialog),
 );
@@ -34,6 +37,8 @@ export function OrderDetailsPanel() {
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const closeDialog = useCallback(() => setProductToDelete(null), []);
+  const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
+  const closePhoto = useCallback(() => setPhotoProduct(null), []);
   const [addOpen, setAddOpen] = useState(false);
   const closeAdd = useCallback(() => setAddOpen(false), []);
 
@@ -75,7 +80,12 @@ export function OrderDetailsPanel() {
           ) : (
             <ul className="order-details__list">
               {order.products.map((product) => (
-                <ProductLine key={product.id} product={product} onDelete={setProductToDelete} />
+                <ProductLine
+                  key={product.id}
+                  product={product}
+                  onDelete={setProductToDelete}
+                  onPhoto={setPhotoProduct}
+                />
               ))}
             </ul>
           )}
@@ -83,6 +93,7 @@ export function OrderDetailsPanel() {
       )}
 
       <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
       <AddProductDialog
         order={addOpen && order ? { id: order.id, title: order.title } : null}
         onClose={closeAdd}

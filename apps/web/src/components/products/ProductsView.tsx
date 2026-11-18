@@ -13,6 +13,9 @@ import type { Product } from "@/types/api";
 import { ProductRow } from "./ProductRow";
 import { ProductTypeFilter } from "./ProductTypeFilter";
 
+const ProductPhotoDialog = dynamic(() =>
+  import("./ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+);
 const DeleteProductDialog = dynamic(() =>
   import("./DeleteProductDialog").then((module) => module.DeleteProductDialog),
 );
@@ -30,6 +33,8 @@ export function ProductsView() {
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const closeDialog = useCallback(() => setProductToDelete(null), []);
+  const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
+  const closePhoto = useCallback(() => setPhotoProduct(null), []);
 
   const filtered = Boolean(type || search);
 
@@ -50,7 +55,11 @@ export function ProductsView() {
             <ul className="products__list">
               {data.items.map((product) => (
                 <li key={product.id} className="products__item">
-                  <ProductRow product={product} onDelete={setProductToDelete} />
+                  <ProductRow
+                    product={product}
+                    onDelete={setProductToDelete}
+                    onPhoto={setPhotoProduct}
+                  />
                 </li>
               ))}
             </ul>
@@ -59,6 +68,7 @@ export function ProductsView() {
       </div>
 
       <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
     </>
   );
 }

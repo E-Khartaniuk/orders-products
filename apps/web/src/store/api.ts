@@ -142,6 +142,26 @@ export const api = createApi({
         { type: "Order", id: "LIST" },
       ],
     }),
+    uploadProductPhoto: build.mutation<Product, { id: number; orderId: number; file: File }>({
+      query: ({ id, file }) => {
+        const body = new FormData();
+        body.append("photo", file);
+        return { url: `/products/${id}/photo`, method: "PUT", body };
+      },
+      invalidatesTags: (_result, _error, { id, orderId }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+        { type: "Order", id: orderId },
+      ],
+    }),
+    deleteProductPhoto: build.mutation<Product, { id: number; orderId: number }>({
+      query: ({ id }) => ({ url: `/products/${id}/photo`, method: "DELETE" }),
+      invalidatesTags: (_result, _error, { id, orderId }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+        { type: "Order", id: orderId },
+      ],
+    }),
     deleteProduct: build.mutation<void, { id: number; orderId: number }>({
       query: ({ id }) => ({ url: `/products/${id}`, method: "DELETE" }),
       invalidatesTags: (_result, _error, { id, orderId }) => [
@@ -164,6 +184,8 @@ export const {
   useGetProductTypesQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
+  useUploadProductPhotoMutation,
+  useDeleteProductPhotoMutation,
   useLoginMutation,
   useRegisterMutation,
   useRestoreSessionMutation,

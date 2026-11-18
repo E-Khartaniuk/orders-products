@@ -6,6 +6,7 @@ export type ServerEvent = { occurredAt: string } & (
   | { type: "order.updated"; orderId: number }
   | { type: "order.deleted"; orderId: number }
   | { type: "product.created"; productId: number; orderId: number }
+  | { type: "product.updated"; productId: number; orderId: number }
   | { type: "product.deleted"; productId: number; orderId: number }
 );
 
@@ -29,6 +30,12 @@ export function tagsForEvent(event: ServerEvent): CacheTag[] {
       return [{ type: "Order", id: event.orderId }, orderList, ...productLists];
     case "product.created":
       return [{ type: "Order", id: event.orderId }, orderList, ...productLists];
+    case "product.updated":
+      return [
+        { type: "Product", id: event.productId },
+        { type: "Product", id: "LIST" },
+        { type: "Order", id: event.orderId },
+      ];
     case "product.deleted":
       return [
         { type: "Product", id: event.productId },

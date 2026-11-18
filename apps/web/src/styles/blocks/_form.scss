@@ -51,6 +51,48 @@
     }
   }
 
+  &__photo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__photo-preview {
+    width: 64px;
+    height: 48px;
+    border-radius: $radius;
+    object-fit: cover;
+  }
+
+  &__photo-pick,
+  &__photo-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid $color-border;
+    border-radius: $radius;
+    background: $color-surface;
+    color: $color-text;
+    font-size: 0.8125rem;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $color-primary;
+    }
+
+    &:focus-within {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+    }
+  }
+
+  &__photo-clear:hover {
+    border-color: $color-danger;
+    color: $color-danger;
+  }
+
   &__hint {
     margin-top: 4px;
     color: $color-text-muted;
