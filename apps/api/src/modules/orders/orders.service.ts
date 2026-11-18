@@ -1,6 +1,7 @@
 import { prisma } from "../../db.js";
 import { publish } from "../../events/bus.js";
 import { HttpError } from "../../lib/http-error.js";
+import { removeStoredImage } from "../../lib/uploads.js";
 import { sumByCurrency, type PriceLike } from "../../lib/money.js";
 import { productInclude, toProductDto } from "../products/products.mapper.js";
 import type {
@@ -105,6 +106,11 @@ export async function updateOrder(id: number, input: UpdateOrderBody) {
 }
 
 export async function deleteOrder(id: number) {
+  const photos = await prisma.product.findMany({
+    where: { orderId: id, photo: { not: null } },
+    select: { photo: true },
+  });
   await prisma.order.delete({ where: { id } });
+  await Promise.all(photos.map((product) => removeStoredImage(product.photo)));
   publish({ type: "order.deleted", orderId: id });
 }

@@ -12,7 +12,7 @@ const { uploadsDir } = await vi.hoisted(async () => {
   const { join } = await import("node:path");
   const dir = makeTemp(join(osTmp(), "op-uploads-"));
   process.env.UPLOADS_DIR = dir;
-  process.env.AVATAR_MAX_BYTES = "1024";
+  process.env.IMAGE_MAX_BYTES = "1024";
   return { uploadsDir: dir };
 });
 

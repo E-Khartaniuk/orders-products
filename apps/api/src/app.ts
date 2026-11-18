@@ -5,12 +5,12 @@ import helmet from "helmet";
 import { config } from "./config.js";
 import { prisma } from "./db.js";
 import { createGraphqlMiddleware } from "./graphql/index.js";
+import { UPLOADS_URL_PREFIX } from "./lib/uploads.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { requireAuth } from "./middleware/require-auth.js";
 import { authRouter } from "./modules/auth/auth.router.js";
 import { ordersRouter } from "./modules/orders/orders.router.js";
 import { productsRouter } from "./modules/products/products.router.js";
-import { UPLOADS_URL_PREFIX } from "./modules/profile/profile.service.js";
 import { profileRouter } from "./modules/profile/profile.router.js";
 
 export function createApp() {

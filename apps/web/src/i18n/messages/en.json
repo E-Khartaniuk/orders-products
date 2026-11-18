@@ -97,11 +97,32 @@
       "priceUah": "Price, UAH",
       "submit": "Add",
       "error": "Failed to add the product",
-      "duplicateSerial": "A product with this serial number already exists"
+      "duplicateSerial": "A product with this serial number already exists",
+      "photo": "Photo",
+      "photoPick": "Choose photo",
+      "photoReplace": "Replace",
+      "photoClear": "Remove",
+      "photoHint": "Optional. PNG, JPEG or WebP, up to 2 MB",
+      "photoType": "Only PNG, JPEG and WebP are supported",
+      "photoSize": "The file is larger than 2 MB",
+      "photoUploadError": "failed to upload the photo",
+      "photoSaved": "The product was added, but the photo was not uploaded: {reason}. You can add it later by clicking the thumbnail."
     },
     "delete": {
       "title": "Are you sure you want to delete this product?",
       "error": "Failed to delete the product. Please try again."
+    },
+    "photo": {
+      "open": "Photo of {title}",
+      "title": "Product photo",
+      "hint": "PNG, JPEG or WebP, up to 2 MB. Without a photo an icon for the product type is shown.",
+      "upload": "Upload photo",
+      "replace": "Replace photo",
+      "uploading": "Uploading…",
+      "remove": "Remove photo",
+      "type": "Only PNG, JPEG and WebP are supported",
+      "size": "The file is larger than 2 MB",
+      "error": "Failed to update the photo"
     }
   },
   "status": {
