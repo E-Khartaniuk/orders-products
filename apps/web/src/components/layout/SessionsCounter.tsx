@@ -15,7 +15,7 @@ export function SessionsCounter() {
       aria-live="polite"
     >
       <span className="top-menu__sessions-dot" aria-hidden="true" />
-      <span>{t("online")}</span>
+      <span className="top-menu__sessions-label">{t("online")}</span>
       <span className="top-menu__sessions-count">{connected && count !== null ? count : "—"}</span>
     </div>
   );

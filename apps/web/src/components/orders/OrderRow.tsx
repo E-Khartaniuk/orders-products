@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useLocale, useTranslations } from "use-intl";
 import { formatLongDate, formatMonthOfYear } from "@/lib/format";
+import { useOverflowTitle } from "@/lib/use-overflow-title";
 import type { OrderSummary } from "@/types/api";
 import { Price } from "./Price";
 
@@ -21,6 +22,7 @@ export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
   const t = useTranslations("orders");
   const locale = useLocale();
   const href = `/orders/${order.id}`;
+  const showTitleIfCut = useOverflowTitle(order.title);
 
   const open = () => router.push(href, { scroll: false });
 
@@ -45,7 +47,7 @@ export function OrderRow({ order, compact, active, onDelete }: OrderRowProps) {
       onClick={open}
       onKeyDown={onKeyDown}
     >
-      <div className="order-row__title">
+      <div className="order-row__title" onMouseEnter={showTitleIfCut}>
         <Link
           href={href}
           scroll={false}

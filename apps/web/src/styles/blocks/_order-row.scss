@@ -134,8 +134,18 @@
     font-size: 1.125rem;
   }
 
+  @media (max-width: 1600px) {
+    &__title {
+      font-size: 1.125rem;
+    }
+  }
+
   @media (max-width: 1280px) {
     grid-template-columns: minmax(0, 1fr) 100px 160px 160px 32px;
+
+    &__title {
+      font-size: 1rem;
+    }
 
     &__list-icon {
       display: none;
