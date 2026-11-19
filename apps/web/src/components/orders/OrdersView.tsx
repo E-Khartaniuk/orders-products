@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -9,6 +9,7 @@ import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDocumentTitle } from "@/i18n/use-document-title";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
+import { LazyMount } from "@/components/ui/LazyMount";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetOrdersQuery } from "@/store/api";
@@ -16,11 +17,13 @@ import type { OrderSummary } from "@/types/api";
 import { OrderRow } from "./OrderRow";
 import { useActiveRowOffset } from "./use-active-row-offset";
 
-const CreateOrderDialog = dynamic(() =>
-  import("./CreateOrderDialog").then((module) => module.CreateOrderDialog),
+const CreateOrderDialog = dynamic(
+  () => import("./CreateOrderDialog").then((module) => module.CreateOrderDialog),
+  { ssr: false },
 );
-const DeleteOrderDialog = dynamic(() =>
-  import("./DeleteOrderDialog").then((module) => module.DeleteOrderDialog),
+const DeleteOrderDialog = dynamic(
+  () => import("./DeleteOrderDialog").then((module) => module.DeleteOrderDialog),
+  { ssr: false },
 );
 
 export function OrdersView({ children }: { children: ReactNode }) {
@@ -79,10 +82,10 @@ export function OrdersView({ children }: { children: ReactNode }) {
             <StateMessage variant="empty" message={search ? t("nothingFound") : t("empty")} />
           )}
           {data && data.items.length > 0 && (
-            <motion.ul className="orders__list" layout>
+            <m.ul className="orders__list" layout>
               <AnimatePresence initial={false}>
                 {data.items.map((order) => (
-                  <motion.li
+                  <m.li
                     key={order.id}
                     layout
                     initial={{ opacity: 0 }}
@@ -96,17 +99,17 @@ export function OrdersView({ children }: { children: ReactNode }) {
                       active={order.id === selectedId}
                       onDelete={setOrderToDelete}
                     />
-                  </motion.li>
+                  </m.li>
                 ))}
               </AnimatePresence>
-            </motion.ul>
+            </m.ul>
           )}
         </div>
 
         {!hasDetails && children}
         <AnimatePresence mode="wait">
           {hasDetails && (
-            <motion.section
+            <m.section
               key={selectedId}
               ref={detailsRef}
               className="orders__details"
@@ -118,13 +121,17 @@ export function OrdersView({ children }: { children: ReactNode }) {
               aria-label={t("details")}
             >
               {children}
-            </motion.section>
+            </m.section>
           )}
         </AnimatePresence>
       </div>
 
-      <DeleteOrderDialog order={orderToDelete} onClose={closeDialog} onDeleted={onDeleted} />
-      <CreateOrderDialog open={createOpen} onClose={closeCreate} />
+      <LazyMount when={orderToDelete !== null}>
+        <DeleteOrderDialog order={orderToDelete} onClose={closeDialog} onDeleted={onDeleted} />
+      </LazyMount>
+      <LazyMount when={createOpen}>
+        <CreateOrderDialog open={createOpen} onClose={closeCreate} />
+      </LazyMount>
     </>
   );
 }

@@ -1,5 +1,3 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.min.css";
 import "@/styles/globals.scss";
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";

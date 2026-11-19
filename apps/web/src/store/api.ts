@@ -176,6 +176,7 @@ export const api = createApi({
 });
 
 export const {
+  usePrefetch,
   useGetOrdersQuery,
   useGetOrderQuery,
   useCreateOrderMutation,

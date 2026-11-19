@@ -1,6 +1,6 @@
-import type { z } from "zod";
-
 export type StorageKind = "local" | "session";
+
+export type Parser<T> = (value: unknown) => T | null;
 
 export function getStorage(kind: StorageKind): Storage | null {
   try {
@@ -11,13 +11,11 @@ export function getStorage(kind: StorageKind): Storage | null {
   }
 }
 
-export function readJson<T>(storage: Storage | null, key: string, schema: z.ZodType<T>): T | null {
+export function readJson<T>(storage: Storage | null, key: string, parse: Parser<T>): T | null {
   if (!storage) return null;
   try {
     const raw = storage.getItem(key);
-    if (raw === null) return null;
-    const result = schema.safeParse(JSON.parse(raw));
-    return result.success ? result.data : null;
+    return raw === null ? null : parse(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -30,3 +28,9 @@ export function writeJson(storage: Storage | null, key: string, value: unknown) 
     // Quota exceeded or storage disabled: persistence is best effort.
   }
 }
+
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+export const isOptionalString = (value: unknown, maxLength: number) =>
+  value === undefined || (typeof value === "string" && value.length <= maxLength);

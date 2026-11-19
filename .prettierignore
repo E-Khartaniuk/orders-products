@@ -5,3 +5,4 @@ coverage
 package-lock.json
 apps/api/src/generated
 apps/web/AGENTS.md
+apps/web/src/styles/_icons.generated.scss
