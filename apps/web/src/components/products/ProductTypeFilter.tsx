@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "use-intl";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useGetProductTypesQuery } from "@/store/api";
 import { productTypeFilterChanged } from "@/store/ui-slice";
 
 export function ProductTypeFilter() {
+  const t = useTranslations("products");
   const dispatch = useAppDispatch();
   const value = useAppSelector((state) => state.ui.productTypeFilter);
   const { data, isLoading } = useGetProductTypesQuery();
@@ -12,7 +14,7 @@ export function ProductTypeFilter() {
   return (
     <div className="filter">
       <label htmlFor="product-type-filter" className="filter__label">
-        Тип:
+        {t("typeFilter")}
       </label>
       <select
         id="product-type-filter"
@@ -21,7 +23,7 @@ export function ProductTypeFilter() {
         disabled={isLoading}
         onChange={(event) => dispatch(productTypeFilterChanged(event.target.value))}
       >
-        <option value="">Все типы</option>
+        <option value="">{t("allTypes")}</option>
         {data?.items.map((type) => (
           <option key={type} value={type}>
             {type}

@@ -11,6 +11,12 @@
     grid-template-columns: minmax(300px, 467px) minmax(0, 1fr);
   }
 
+  &__details {
+    min-width: 0;
+    scroll-margin: calc(#{$header-height} + 24px) 0 24px;
+    transition: margin-top 0.25s ease;
+  }
+
   &__list {
     display: flex;
     flex-direction: column;

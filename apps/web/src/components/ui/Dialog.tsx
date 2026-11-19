@@ -1,9 +1,10 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "use-intl";
 
 type DialogProps = {
   open: boolean;
@@ -24,6 +25,7 @@ export function Dialog({
   onClose,
   children,
 }: DialogProps) {
+  const t = useTranslations("common");
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const lockedRef = useRef(locked);
@@ -66,14 +68,14 @@ export function Dialog({
     <AnimatePresence>
       {open && (
         <div className="dialog">
-          <motion.div
+          <m.div
             className="dialog__backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => !locked && onClose()}
           />
-          <motion.div
+          <m.div
             ref={panelRef}
             className={clsx("dialog__panel", `dialog__panel--${size}`)}
             role={role}
@@ -87,7 +89,7 @@ export function Dialog({
             <button
               type="button"
               className="dialog__close"
-              aria-label="Закрыть"
+              aria-label={t("close")}
               onClick={onClose}
               disabled={locked}
             >
@@ -97,7 +99,7 @@ export function Dialog({
               {title}
             </h2>
             {children}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>,
@@ -112,16 +114,12 @@ type DialogFooterProps = {
   children: ReactNode;
 };
 
-export function DialogFooter({
-  cancelLabel = "Отменить",
-  disabled,
-  onCancel,
-  children,
-}: DialogFooterProps) {
+export function DialogFooter({ cancelLabel, disabled, onCancel, children }: DialogFooterProps) {
+  const t = useTranslations("common");
   return (
     <div className="dialog__footer">
       <button type="button" className="dialog__cancel" onClick={onCancel} disabled={disabled}>
-        {cancelLabel}
+        {cancelLabel ?? t("cancel")}
       </button>
       {children}
     </div>

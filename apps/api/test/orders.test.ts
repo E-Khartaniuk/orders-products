@@ -1,4 +1,4 @@
-import request from "supertest";
+import { authedClient } from "./auth-helpers.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { prismaError, prismaMock, sampleProductRecord } from "./prisma-mock.js";
 
@@ -6,6 +6,7 @@ vi.mock("../src/db.js", () => ({ prisma: prismaMock }));
 
 const { createApp } = await import("../src/app.js");
 const app = createApp();
+const api = await authedClient(app);
 
 const orderRecord = {
   id: 1,
@@ -37,7 +38,7 @@ describe("GET /api/orders", () => {
   it("returns orders with products count and totals in both currencies", async () => {
     prismaMock.order.findMany.mockResolvedValue([orderRecord]);
 
-    const res = await request(app).get("/api/orders");
+    const res = await api.get("/api/orders");
 
     expect(res.status).toBe(200);
     expect(res.body.total).toBe(1);
@@ -55,7 +56,7 @@ describe("GET /api/orders", () => {
   it("filters by search term", async () => {
     prismaMock.order.findMany.mockResolvedValue([]);
 
-    await request(app).get("/api/orders").query({ search: "monitor" });
+    await api.get("/api/orders").query({ search: "monitor" });
 
     expect(prismaMock.order.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { title: { contains: "monitor" } } }),
@@ -70,7 +71,7 @@ describe("GET /api/orders/:id", () => {
       products: [sampleProductRecord],
     });
 
-    const res = await request(app).get("/api/orders/1");
+    const res = await api.get("/api/orders/1");
 
     expect(res.status).toBe(200);
     expect(res.body.productsCount).toBe(1);
@@ -87,14 +88,14 @@ describe("GET /api/orders/:id", () => {
   it("responds 404 for unknown order", async () => {
     prismaMock.order.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/orders/999");
+    const res = await api.get("/api/orders/999");
 
     expect(res.status).toBe(404);
     expect(res.body.error.message).toMatch(/not found/);
   });
 
   it("responds 400 for invalid id", async () => {
-    const res = await request(app).get("/api/orders/abc");
+    const res = await api.get("/api/orders/abc");
 
     expect(res.status).toBe(400);
     expect(prismaMock.order.findUnique).not.toHaveBeenCalled();
@@ -105,14 +106,14 @@ describe("POST /api/orders", () => {
   it("creates an order", async () => {
     prismaMock.order.create.mockResolvedValue({ ...orderRecord, products: [] });
 
-    const res = await request(app).post("/api/orders").send({ title: "Order 1" });
+    const res = await api.post("/api/orders").send({ title: "Order 1" });
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({ id: 1, productsCount: 0, totals: [] });
   });
 
   it("rejects empty title", async () => {
-    const res = await request(app).post("/api/orders").send({ title: "   " });
+    const res = await api.post("/api/orders").send({ title: "   " });
 
     expect(res.status).toBe(400);
     expect(res.body.error.details[0].path).toBe("title");
@@ -120,7 +121,7 @@ describe("POST /api/orders", () => {
   });
 
   it("rejects malformed JSON", async () => {
-    const res = await request(app)
+    const res = await api
       .post("/api/orders")
       .set("Content-Type", "application/json")
       .send("{bad json");
@@ -131,7 +132,7 @@ describe("POST /api/orders", () => {
 
 describe("PATCH /api/orders/:id", () => {
   it("rejects empty update", async () => {
-    const res = await request(app).patch("/api/orders/1").send({});
+    const res = await api.patch("/api/orders/1").send({});
 
     expect(res.status).toBe(400);
   });
@@ -139,9 +140,10 @@ describe("PATCH /api/orders/:id", () => {
 
 describe("DELETE /api/orders/:id", () => {
   it("deletes an order", async () => {
+    prismaMock.product.findMany.mockResolvedValue([]);
     prismaMock.order.delete.mockResolvedValue(orderRecord);
 
-    const res = await request(app).delete("/api/orders/1");
+    const res = await api.delete("/api/orders/1");
 
     expect(res.status).toBe(204);
     expect(prismaMock.order.delete).toHaveBeenCalledWith({ where: { id: 1 } });
@@ -150,7 +152,7 @@ describe("DELETE /api/orders/:id", () => {
   it("responds 404 when order does not exist", async () => {
     prismaMock.order.delete.mockRejectedValue(prismaError("P2025"));
 
-    const res = await request(app).delete("/api/orders/999");
+    const res = await api.delete("/api/orders/999");
 
     expect(res.status).toBe(404);
   });
@@ -158,9 +160,46 @@ describe("DELETE /api/orders/:id", () => {
 
 describe("unknown routes", () => {
   it("responds 404 with JSON error", async () => {
-    const res = await request(app).get("/api/unknown");
+    const res = await api.get("/api/unknown");
 
     expect(res.status).toBe(404);
     expect(res.body.error.message).toContain("/api/unknown");
+  });
+});
+
+describe("order location", () => {
+  it("exposes location when coordinates are stored", async () => {
+    prismaMock.order.findMany.mockResolvedValue([
+      { ...orderRecord, city: "Kyiv", latitude: 50.45, longitude: 30.52, products: [] },
+    ]);
+
+    const res = await api.get("/api/orders");
+
+    expect(res.body.items[0].location).toEqual({ city: "Kyiv", latitude: 50.45, longitude: 30.52 });
+  });
+
+  it("stores location columns on create", async () => {
+    prismaMock.order.create.mockResolvedValue({ ...orderRecord, products: [] });
+
+    const res = await api.post("/api/orders").send({
+      title: "With location",
+      location: { city: "Lviv", latitude: 49.84, longitude: 24.03 },
+    });
+
+    expect(res.status).toBe(201);
+    expect(prismaMock.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ city: "Lviv", latitude: 49.84, longitude: 24.03 }),
+      }),
+    );
+  });
+
+  it("rejects out-of-range coordinates", async () => {
+    const res = await api.post("/api/orders").send({
+      title: "Bad",
+      location: { city: "Nowhere", latitude: 120, longitude: 0 },
+    });
+
+    expect(res.status).toBe(400);
   });
 });

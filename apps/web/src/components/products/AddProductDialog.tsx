@@ -1,20 +1,29 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm, type Path } from "react-hook-form";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { useForm, useWatch, type Path } from "react-hook-form";
+import { useTranslations } from "use-intl";
 import type { z } from "zod";
 import { Dialog, DialogError, DialogFooter } from "@/components/ui/Dialog";
 import { FormField, fieldA11y } from "@/components/ui/FormField";
-import { parseApiError } from "@/lib/api-error";
 import {
-  PRODUCT_STATUS_OPTIONS,
-  productFormSchema,
+  PRODUCT_STATUSES,
+  createProductFormSchema,
   toCreateProductPayload,
   todayInputValue,
+  type ProductFormSchema,
   type ProductFormValues,
 } from "@/lib/schemas";
-import { useCreateProductMutation, useGetProductTypesQuery } from "@/store/api";
+import { useApiErrorParser } from "@/lib/use-api-error";
+import { IMAGE_TYPES, checkImageFile } from "@/lib/image-files";
+import { useSchema } from "@/lib/use-schema";
+import {
+  useCreateProductMutation,
+  useGetProductTypesQuery,
+  useUploadProductPhotoMutation,
+} from "@/store/api";
+import { ProductThumb } from "./ProductThumb";
 
 const SERVER_FIELD_MAP: Record<string, Path<ProductFormValues>> = {
   serialNumber: "serialNumber",
@@ -48,16 +57,26 @@ type AddProductDialogProps = {
 export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
   const open = order !== null;
   const [createProduct] = useCreateProductMutation();
+  const [uploadPhoto] = useUploadProductPhotoMutation();
+  const [photo, setPhotoState] = useState<{ file: File; url: string } | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [photoFailed, setPhotoFailed] = useState<string | null>(null);
   const { data: types } = useGetProductTypesQuery(undefined, { skip: !open });
+  const t = useTranslations("products.create");
+  const tc = useTranslations("common");
+  const tStatus = useTranslations("status");
+  const parseError = useApiErrorParser();
+  const schema = useSchema(createProductFormSchema);
 
   const {
     register,
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<ProductFormValues, unknown, z.output<typeof productFormSchema>>({
-    resolver: zodResolver(productFormSchema),
+  } = useForm<ProductFormValues, unknown, z.output<ProductFormSchema>>({
+    resolver: zodResolver(schema),
     mode: "onTouched",
     defaultValues: EMPTY_VALUES,
   });
@@ -66,15 +85,53 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
     if (open) reset({ ...EMPTY_VALUES, guaranteeStart: todayInputValue() });
   }, [open, reset]);
 
+  const setPhoto = (file: File | null) =>
+    setPhotoState(file ? { file, url: URL.createObjectURL(file) } : null);
+
+  useEffect(
+    () => () => {
+      if (photo) URL.revokeObjectURL(photo.url);
+    },
+    [photo],
+  );
+
+  const close = () => {
+    setPhoto(null);
+    setPhotoError(null);
+    setPhotoFailed(null);
+    onClose();
+  };
+
+  const onPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    if (!file) return;
+    const problem = checkImageFile(file);
+    if (problem) {
+      setPhotoError(problem === "type" ? t("photoType") : t("photoSize"));
+      return;
+    }
+    setPhotoError(null);
+    setPhoto(file);
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     if (!order) return;
     try {
-      await createProduct(toCreateProductPayload(values, order.id)).unwrap();
-      onClose();
+      const product = await createProduct(toCreateProductPayload(values, order.id)).unwrap();
+      if (photo) {
+        try {
+          await uploadPhoto({ id: product.id, orderId: order.id, file: photo.file }).unwrap();
+        } catch (error) {
+          setPhotoFailed(parseError(error, t("photoUploadError")).message);
+          return;
+        }
+      }
+      close();
     } catch (error) {
-      const parsed = parseApiError(error, "Не удалось добавить продукт");
+      const parsed = parseError(error, t("error"));
       if (parsed.status === 409) {
-        setError("serialNumber", { message: "Продукт с таким серийным номером уже существует" });
+        setError("serialNumber", { message: t("duplicateSerial") });
         return;
       }
       let mapped = false;
@@ -90,19 +147,20 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
   });
 
   const err = (name: keyof ProductFormValues) => errors[name]?.message;
+  const watchedType = useWatch({ control, name: "type" });
 
   return (
     <Dialog
       open={open}
-      title={order ? `Новый продукт · ${order.title}` : "Новый продукт"}
+      title={order ? t("titleFor", { order: order.title }) : t("title")}
       size="lg"
       locked={isSubmitting}
-      onClose={onClose}
+      onClose={close}
     >
       <form className="dialog__form" noValidate onSubmit={onSubmit}>
         <div className="dialog__body dialog__body--padded">
           <div className="form">
-            <FormField id="product-title" label="Название" required error={err("title")} wide>
+            <FormField id="product-title" label={t("name")} required error={err("title")} wide>
               <input
                 type="text"
                 autoComplete="off"
@@ -114,10 +172,10 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
 
             <FormField
               id="product-serial"
-              label="Серийный номер"
+              label={t("serial")}
               required
               error={err("serialNumber")}
-              hint="Например, SN-12.3456789"
+              hint={t("serialHint")}
             >
               <input
                 type="text"
@@ -128,7 +186,7 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
               />
             </FormField>
 
-            <FormField id="product-type" label="Тип" required error={err("type")}>
+            <FormField id="product-type" label={t("type")} required error={err("type")}>
               <input
                 type="text"
                 list="product-type-options"
@@ -145,7 +203,7 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
 
             <FormField
               id="product-specification"
-              label="Спецификация"
+              label={t("specification")}
               required
               error={err("specification")}
               wide
@@ -158,36 +216,36 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
               />
             </FormField>
 
-            <FormField id="product-status" label="Статус" required error={err("status")}>
+            <FormField id="product-status" label={t("status")} required error={err("status")}>
               <select
                 {...fieldA11y("product-status", err("status"), { control: "form-select" })}
                 {...register("status")}
               >
-                {PRODUCT_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {PRODUCT_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {tStatus(status)}
                   </option>
                 ))}
               </select>
             </FormField>
 
             <fieldset className="form__field">
-              <legend className="form__label">Состояние</legend>
+              <legend className="form__label">{t("condition")}</legend>
               <div className="form__switch">
                 <label className="form__option">
                   <input type="radio" value="new" {...register("condition")} />
-                  <span>Новый</span>
+                  <span>{t("conditionNew")}</span>
                 </label>
                 <label className="form__option">
                   <input type="radio" value="used" {...register("condition")} />
-                  <span>Б / У</span>
+                  <span>{t("conditionUsed")}</span>
                 </label>
               </div>
             </fieldset>
 
             <FormField
               id="product-guarantee-start"
-              label="Гарантия с"
+              label={t("guaranteeStart")}
               required
               error={err("guaranteeStart")}
             >
@@ -200,7 +258,7 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
 
             <FormField
               id="product-guarantee-end"
-              label="Гарантия по"
+              label={t("guaranteeEnd")}
               required
               error={err("guaranteeEnd")}
             >
@@ -211,7 +269,12 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
               />
             </FormField>
 
-            <FormField id="product-price-usd" label="Цена, $" required error={err("priceUsd")}>
+            <FormField
+              id="product-price-usd"
+              label={t("priceUsd")}
+              required
+              error={err("priceUsd")}
+            >
               <input
                 type="text"
                 inputMode="decimal"
@@ -221,7 +284,12 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
               />
             </FormField>
 
-            <FormField id="product-price-uah" label="Цена, UAH" required error={err("priceUah")}>
+            <FormField
+              id="product-price-uah"
+              label={t("priceUah")}
+              required
+              error={err("priceUah")}
+            >
               <input
                 type="text"
                 inputMode="decimal"
@@ -230,15 +298,62 @@ export function AddProductDialog({ order, onClose }: AddProductDialogProps) {
                 {...register("priceUah")}
               />
             </FormField>
+
+            <div className="form__field form__field--wide">
+              <span className="form__label">{t("photo")}</span>
+              <div className="form__photo">
+                {photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="form__photo-preview" src={photo.url} alt="" />
+                ) : (
+                  <ProductThumb src={null} type={watchedType} alt="" />
+                )}
+                <label className="form__photo-pick">
+                  <input
+                    type="file"
+                    accept={IMAGE_TYPES.join(",")}
+                    className="visually-hidden"
+                    onChange={onPhotoChange}
+                  />
+                  <i className="bi bi-image" aria-hidden="true" />
+                  {photo ? t("photoReplace") : t("photoPick")}
+                </label>
+                {photo && (
+                  <button
+                    type="button"
+                    className="form__photo-clear"
+                    onClick={() => setPhoto(null)}
+                  >
+                    {t("photoClear")}
+                  </button>
+                )}
+              </div>
+              <div
+                className={photoError ? "form__error" : "form__hint"}
+                role={photoError ? "alert" : undefined}
+              >
+                {photoError ?? t("photoHint")}
+              </div>
+            </div>
           </div>
         </div>
-        <DialogError message={errors.root?.message} />
-        <DialogFooter disabled={isSubmitting} onCancel={onClose}>
-          <button type="submit" className="dialog__action" disabled={isSubmitting}>
-            <i className="bi bi-plus-lg" aria-hidden="true" />
-            {isSubmitting ? "Сохранение…" : "Добавить"}
-          </button>
-        </DialogFooter>
+        <DialogError
+          message={photoFailed ? t("photoSaved", { reason: photoFailed }) : errors.root?.message}
+        />
+        {photoFailed ? (
+          <div className="dialog__footer">
+            <button type="button" className="dialog__action" onClick={close}>
+              {tc("close")}
+            </button>
+          </div>
+        ) : (
+          <DialogFooter disabled={isSubmitting} onCancel={close}>
+            <button type="submit" className="dialog__action" disabled={isSubmitting}>
+              <i className="bi bi-plus-lg" aria-hidden="true" />
+              {isSubmitting ? tc("saving") : t("submit")}
+            </button>
+          </DialogFooter>
+        )}
       </form>
     </Dialog>
   );

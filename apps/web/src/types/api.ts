@@ -25,12 +25,19 @@ export type Product = {
   user: { id: number; name: string } | null;
 };
 
+export type OrderLocation = {
+  city: string;
+  latitude: number;
+  longitude: number;
+};
+
 export type OrderSummary = {
   id: number;
   title: string;
   description: string | null;
   date: string;
   createdAt: string;
+  location: OrderLocation | null;
   productsCount: number;
   totals: Money[];
 };
@@ -43,6 +50,23 @@ export type ListResponse<T> = {
   items: T[];
   total: number;
 };
+
+export type User = {
+  id: number;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  locale: "ru" | "en" | null;
+};
+
+export type AuthResponse = {
+  user: User;
+  accessToken: string;
+};
+
+export type LoginPayload = { email: string; password: string };
+
+export type RegisterPayload = LoginPayload & { name: string; locale?: "ru" | "en" };
 
 export type ProductsQuery = {
   type?: string;

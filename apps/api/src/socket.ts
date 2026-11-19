@@ -1,18 +1,48 @@
 import type { Server as HttpServer } from "node:http";
 import { Server } from "socket.io";
 import { config } from "./config.js";
+import { subscribe } from "./events/bus.js";
+import { verifyAccessToken } from "./modules/auth/tokens.js";
+
+export const AUTHENTICATED_ROOM = "authenticated";
 
 export function createSocketServer(httpServer: HttpServer) {
   const io = new Server(httpServer, {
     cors: { origin: config.CORS_ORIGIN, credentials: true },
   });
 
-  const broadcastCount = () => io.emit("sessions:count", io.engine.clientsCount);
+  // Namespace sockets drop the closing socket before "disconnect" fires;
+  // io.engine.clientsCount still includes it at that point.
+  const broadcastCount = () => io.emit("sessions:count", io.of("/").sockets.size);
 
   io.on("connection", (socket) => {
     broadcastCount();
     socket.on("disconnect", broadcastCount);
+
+    socket.on("auth", async (token: unknown, ack?: (ok: boolean) => void) => {
+      const ok =
+        typeof token === "string" &&
+        token.length > 0 &&
+        (await verifyAccessToken(token).then(
+          () => true,
+          () => false,
+        ));
+
+      if (ok) await socket.join(AUTHENTICATED_ROOM);
+      else await socket.leave(AUTHENTICATED_ROOM);
+      if (typeof ack === "function") ack(ok);
+    });
   });
 
-  return io;
+  const unsubscribe = subscribe((event) => {
+    io.to(AUTHENTICATED_ROOM).emit("domain:event", event);
+  });
+
+  return {
+    io,
+    close: async () => {
+      unsubscribe();
+      await io.close();
+    },
+  };
 }

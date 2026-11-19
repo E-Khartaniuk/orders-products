@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import { useTranslations } from "use-intl";
 import type { Product } from "@/types/api";
 import { StatusDot, StatusLabel } from "./ProductStatus";
 import { ProductThumb } from "./ProductThumb";
@@ -6,16 +9,24 @@ import { ProductThumb } from "./ProductThumb";
 type ProductLineProps = {
   product: Product;
   onDelete?: (product: Product) => void;
+  onPhoto?: (product: Product) => void;
   as?: "li" | "div";
 };
 
-export function ProductLine({ product, onDelete, as: Tag = "li" }: ProductLineProps) {
+export function ProductLine({ product, onDelete, onPhoto, as: Tag = "li" }: ProductLineProps) {
+  const t = useTranslations("products");
   const isStatic = !onDelete;
 
   return (
     <Tag className={clsx("product-line", isStatic && "product-line--static")}>
       <StatusDot status={product.status} />
-      <ProductThumb src={product.photo} alt="" />
+      <ProductThumb
+        src={product.photo}
+        type={product.type}
+        alt=""
+        onClick={onPhoto && (() => onPhoto(product))}
+        label={t("photo.open", { title: product.title })}
+      />
       <div className="product-line__info">
         <span className="product-line__title" title={product.title}>
           {product.title}
@@ -29,7 +40,7 @@ export function ProductLine({ product, onDelete, as: Tag = "li" }: ProductLinePr
             <button
               type="button"
               className="icon-button"
-              aria-label={`Удалить продукт ${product.title}`}
+              aria-label={t("deleteLabel", { title: product.title })}
               onClick={() => onDelete(product)}
             >
               <i className="bi bi-trash3-fill" aria-hidden="true" />

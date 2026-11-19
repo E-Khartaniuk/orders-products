@@ -1,17 +1,37 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
-import { AddProductDialog } from "@/components/products/AddProductDialog";
-import { DeleteProductDialog } from "@/components/products/DeleteProductDialog";
+import { useTranslations } from "use-intl";
 import { ProductLine } from "@/components/products/ProductLine";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
+import { LazyMount } from "@/components/ui/LazyMount";
 import { useGetOrderQuery } from "@/store/api";
 import type { Product } from "@/types/api";
 
+const AddProductDialog = dynamic(
+  () => import("@/components/products/AddProductDialog").then((module) => module.AddProductDialog),
+  { ssr: false },
+);
+const ProductPhotoDialog = dynamic(
+  () =>
+    import("@/components/products/ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+  { ssr: false },
+);
+const DeleteProductDialog = dynamic(
+  () =>
+    import("@/components/products/DeleteProductDialog").then(
+      (module) => module.DeleteProductDialog,
+    ),
+  { ssr: false },
+);
+
 export function OrderDetailsPanel() {
   const params = useParams<{ id: string }>();
+  const t = useTranslations("orders");
+  const tc = useTranslations("common");
   const id = Number(params.id);
   const {
     data: order,
@@ -25,6 +45,8 @@ export function OrderDetailsPanel() {
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const closeDialog = useCallback(() => setProductToDelete(null), []);
+  const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
+  const closePhoto = useCallback(() => setPhotoProduct(null), []);
   const [addOpen, setAddOpen] = useState(false);
   const closeAdd = useCallback(() => setAddOpen(false), []);
 
@@ -32,7 +54,7 @@ export function OrderDetailsPanel() {
 
   return (
     <div className="order-details">
-      <Link href="/orders" scroll={false} className="order-details__close" aria-label="Закрыть">
+      <Link href="/orders" scroll={false} className="order-details__close" aria-label={tc("close")}>
         <i className="bi bi-x-lg" aria-hidden="true" />
       </Link>
 
@@ -46,7 +68,7 @@ export function OrderDetailsPanel() {
         <div className="p-4">
           <StateMessage
             variant="error"
-            message={notFound ? "Приход не найден" : "Не удалось загрузить приход"}
+            message={notFound ? t("notFound") : t("loadOneError")}
             onRetry={notFound ? undefined : refetch}
           />
         </div>
@@ -58,26 +80,38 @@ export function OrderDetailsPanel() {
             <h2 className="order-details__title">{order.title}</h2>
             <button type="button" className="order-details__add" onClick={() => setAddOpen(true)}>
               <i className="bi bi-plus-circle-fill" aria-hidden="true" />
-              Добавить продукт
+              {t("addProduct")}
             </button>
           </header>
           {order.products.length === 0 ? (
-            <p className="order-details__empty">В этом приходе пока нет продуктов</p>
+            <p className="order-details__empty">{t("noProducts")}</p>
           ) : (
             <ul className="order-details__list">
               {order.products.map((product) => (
-                <ProductLine key={product.id} product={product} onDelete={setProductToDelete} />
+                <ProductLine
+                  key={product.id}
+                  product={product}
+                  onDelete={setProductToDelete}
+                  onPhoto={setPhotoProduct}
+                />
               ))}
             </ul>
           )}
         </>
       )}
 
-      <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
-      <AddProductDialog
-        order={addOpen && order ? { id: order.id, title: order.title } : null}
-        onClose={closeAdd}
-      />
+      <LazyMount when={productToDelete !== null}>
+        <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      </LazyMount>
+      <LazyMount when={photoProduct !== null}>
+        <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      </LazyMount>
+      <LazyMount when={addOpen}>
+        <AddProductDialog
+          order={addOpen && order ? { id: order.id, title: order.title } : null}
+          onClose={closeAdd}
+        />
+      </LazyMount>
     </div>
   );
 }

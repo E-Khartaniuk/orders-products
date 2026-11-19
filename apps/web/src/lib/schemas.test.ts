@@ -1,12 +1,18 @@
+import { createTranslator } from "use-intl";
 import { describe, expect, it } from "vitest";
+import ru from "@/i18n/messages/ru.json";
 import {
-  orderFormSchema,
-  productFormSchema,
+  createOrderFormSchema,
+  createProductFormSchema,
   toCreateOrderPayload,
   toCreateProductPayload,
   todayInputValue,
   type ProductFormValues,
 } from "./schemas";
+
+const t = createTranslator({ locale: "ru", messages: ru, namespace: "validation" });
+const orderFormSchema = createOrderFormSchema(t);
+const productFormSchema = createProductFormSchema(t);
 
 const validProduct: ProductFormValues = {
   serialNumber: "SN-12.3456789",
@@ -30,13 +36,23 @@ describe("orderFormSchema", () => {
       title: "  Order  ",
       description: "",
       date: "2024-05-01",
+      warehouse: "Lviv",
     });
     expect(result.title).toBe("Order");
-    expect(toCreateOrderPayload(result)).toMatchObject({ title: "Order", description: null });
+    expect(toCreateOrderPayload(result)).toMatchObject({
+      title: "Order",
+      description: null,
+      location: { city: "Lviv" },
+    });
   });
 
   it("requires title and a valid date", () => {
-    const result = orderFormSchema.safeParse({ title: "   ", description: "", date: "01.05.2024" });
+    const result = orderFormSchema.safeParse({
+      title: "   ",
+      description: "",
+      date: "01.05.2024",
+      warehouse: "",
+    });
     expect(issuesOf(result)).toEqual(["title", "date"]);
   });
 });

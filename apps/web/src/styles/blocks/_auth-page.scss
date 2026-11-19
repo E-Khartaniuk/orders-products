@@ -1,0 +1,140 @@
+@use "../tokens" as *;
+
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 16px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba($color-primary, 0.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba($color-primary-dark, 0.14), transparent 40%), $color-bg;
+
+  &__card {
+    width: min(440px, 100%);
+    padding: 40px 40px 32px;
+    border-radius: 6px;
+    background: $color-surface;
+    box-shadow: $shadow-card;
+  }
+
+  &__brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  &__logo {
+    width: 32px;
+    height: 37px;
+  }
+
+  &__brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__brand-name {
+    color: $color-primary-dark;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0 0 6px;
+    font-size: 1.625rem;
+    font-weight: 700;
+  }
+
+  &__subtitle {
+    margin: 0 0 28px;
+    color: $color-text-muted;
+    font-size: 0.875rem;
+  }
+
+  &__error {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: $radius;
+    background: rgba($color-danger, 0.08);
+    color: $color-danger;
+    font-size: 0.875rem;
+  }
+
+  &__submit {
+    width: 100%;
+    height: 48px;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 24px;
+    background: $color-primary-dark;
+    color: $color-surface;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 6px 16px rgba($color-primary-dark, 0.35);
+    transition:
+      transform $transition,
+      background $transition;
+
+    &:hover:not(:disabled) {
+      background: #689f38;
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 3px;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+    }
+  }
+
+  &__footer {
+    margin-top: 24px;
+    color: $color-text-muted;
+    font-size: 0.875rem;
+    text-align: center;
+
+    a {
+      color: $color-primary-dark;
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: ($breakpoint-md - 1px)) {
+    &__card {
+      padding: 28px 20px 24px;
+    }
+  }
+}
+
+.splash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba($color-primary, 0.25);
+    border-top-color: $color-primary-dark;
+    border-radius: 50%;
+    animation: splash-spin 0.8s linear infinite;
+  }
+}
+
+@keyframes splash-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

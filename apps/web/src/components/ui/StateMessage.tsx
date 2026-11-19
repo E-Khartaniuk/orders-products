@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import { useTranslations } from "use-intl";
 
 type StateMessageProps = {
   variant: "empty" | "error";
@@ -7,6 +10,7 @@ type StateMessageProps = {
 };
 
 export function StateMessage({ variant, message, onRetry }: StateMessageProps) {
+  const t = useTranslations("common");
   return (
     <div
       className={clsx("state", `state--${variant}`)}
@@ -19,7 +23,7 @@ export function StateMessage({ variant, message, onRetry }: StateMessageProps) {
       <p className="m-0">{message}</p>
       {onRetry && (
         <button type="button" className="state__retry" onClick={onRetry}>
-          Повторить
+          {t("retry")}
         </button>
       )}
     </div>
@@ -27,8 +31,9 @@ export function StateMessage({ variant, message, onRetry }: StateMessageProps) {
 }
 
 export function SkeletonList({ count, height }: { count: number; height: number }) {
+  const t = useTranslations("common");
   return (
-    <div className="d-flex flex-column gap-2" aria-busy="true" aria-label="Загрузка">
+    <div className="d-flex flex-column gap-2" aria-busy="true" aria-label={t("loading")}>
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="skeleton" style={{ height }} />
       ))}

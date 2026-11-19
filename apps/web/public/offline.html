@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8bc34a" />
+    <title>Offline · Inventory</title>
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Montserrat,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        color: #2c3a46;
+        background: #f0f3f5;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      main {
+        width: min(420px, 100%);
+        padding: 32px;
+        border-radius: 6px;
+        background: #fff;
+        box-shadow: 0 6px 24px rgba(44, 58, 70, 0.1);
+        text-align: center;
+      }
+      img {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+      }
+      h1 {
+        margin: 16px 0 8px;
+        font-size: 1.25rem;
+      }
+      p {
+        margin: 0 0 4px;
+        color: #6b7b88;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 24px;
+        border: 0;
+        border-radius: 3px;
+        background: #7cb342;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 2px solid #2c3a46;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon.svg" alt="" />
+      <h1>Нет подключения к сети</h1>
+      <p>Страница откроется, как только соединение восстановится.</p>
+      <p lang="en">You are offline. The page will reload once the connection is back.</p>
+      <button type="button" onclick="location.reload()">Повторить · Retry</button>
+    </main>
+    <script>
+      window.addEventListener("online", () => location.reload());
+    </script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+@use "../tokens" as *;
+
+.locale-switcher {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: $color-bg;
+
+  &__option {
+    min-width: 34px;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: $color-text-muted;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition:
+      background $transition,
+      color $transition;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 1px;
+    }
+
+    &--active {
+      background: $color-primary;
+      color: #fff;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+}

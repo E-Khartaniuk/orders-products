@@ -1,21 +1,35 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useDocumentTitle } from "@/i18n/use-document-title";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
+import { LazyMount } from "@/components/ui/LazyMount";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetOrdersQuery } from "@/store/api";
 import type { OrderSummary } from "@/types/api";
-import { CreateOrderDialog } from "./CreateOrderDialog";
-import { DeleteOrderDialog } from "./DeleteOrderDialog";
 import { OrderRow } from "./OrderRow";
+import { useActiveRowOffset } from "./use-active-row-offset";
+
+const CreateOrderDialog = dynamic(
+  () => import("./CreateOrderDialog").then((module) => module.CreateOrderDialog),
+  { ssr: false },
+);
+const DeleteOrderDialog = dynamic(
+  () => import("./DeleteOrderDialog").then((module) => module.DeleteOrderDialog),
+  { ssr: false },
+);
 
 export function OrdersView({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const t = useTranslations("orders");
+  useDocumentTitle(t("title"));
   const params = useParams<{ id?: string }>();
   const selectedId = params.id ? Number(params.id) : null;
 
@@ -35,37 +49,43 @@ export function OrdersView({ children }: { children: ReactNode }) {
   const closeCreate = useCallback(() => setCreateOpen(false), []);
 
   const hasDetails = selectedId !== null;
+  const listRef = useRef<HTMLDivElement>(null);
+  const detailsOffset = useActiveRowOffset(listRef, hasDetails, [selectedId, data]);
+  const detailsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!hasDetails) return;
+    const timer = window.setTimeout(() => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      detailsRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [hasDetails, selectedId, detailsOffset]);
 
   return (
     <>
       <PageHeader
-        title="Приходы"
+        title={t("title")}
         total={data?.total ?? 0}
-        addLabel="Добавить приход"
+        addLabel={t("add")}
         onAdd={() => setCreateOpen(true)}
       />
 
       <div className={clsx("orders", hasDetails && "orders--with-details")}>
-        <div>
+        <div ref={listRef}>
           {isLoading && <SkeletonList count={4} height={72} />}
-          {isError && (
-            <StateMessage
-              variant="error"
-              message="Не удалось загрузить приходы. Проверьте, что API запущен."
-              onRetry={refetch}
-            />
-          )}
+          {isError && <StateMessage variant="error" message={t("loadError")} onRetry={refetch} />}
           {data && data.items.length === 0 && (
-            <StateMessage
-              variant="empty"
-              message={search ? "По вашему запросу ничего не найдено" : "Приходов пока нет"}
-            />
+            <StateMessage variant="empty" message={search ? t("nothingFound") : t("empty")} />
           )}
           {data && data.items.length > 0 && (
-            <motion.ul className="orders__list" layout>
+            <m.ul className="orders__list" layout>
               <AnimatePresence initial={false}>
                 {data.items.map((order) => (
-                  <motion.li
+                  <m.li
                     key={order.id}
                     layout
                     initial={{ opacity: 0 }}
@@ -79,32 +99,39 @@ export function OrdersView({ children }: { children: ReactNode }) {
                       active={order.id === selectedId}
                       onDelete={setOrderToDelete}
                     />
-                  </motion.li>
+                  </m.li>
                 ))}
               </AnimatePresence>
-            </motion.ul>
+            </m.ul>
           )}
         </div>
 
         {!hasDetails && children}
         <AnimatePresence mode="wait">
           {hasDetails && (
-            <motion.section
+            <m.section
               key={selectedId}
+              ref={detailsRef}
+              className="orders__details"
+              style={{ marginTop: detailsOffset }}
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              aria-label="Детали прихода"
+              aria-label={t("details")}
             >
               {children}
-            </motion.section>
+            </m.section>
           )}
         </AnimatePresence>
       </div>
 
-      <DeleteOrderDialog order={orderToDelete} onClose={closeDialog} onDeleted={onDeleted} />
-      <CreateOrderDialog open={createOpen} onClose={closeCreate} />
+      <LazyMount when={orderToDelete !== null}>
+        <DeleteOrderDialog order={orderToDelete} onClose={closeDialog} onDeleted={onDeleted} />
+      </LazyMount>
+      <LazyMount when={createOpen}>
+        <CreateOrderDialog open={createOpen} onClose={closeCreate} />
+      </LazyMount>
     </>
   );
 }

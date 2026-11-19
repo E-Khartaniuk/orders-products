@@ -4,19 +4,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "use-intl";
 import type { z } from "zod";
 import { Dialog, DialogError, DialogFooter } from "@/components/ui/Dialog";
 import { FormField, fieldA11y } from "@/components/ui/FormField";
-import { parseApiError } from "@/lib/api-error";
 import {
-  orderFormSchema,
+  createOrderFormSchema,
   toCreateOrderPayload,
   todayInputValue,
+  type OrderFormSchema,
   type OrderFormValues,
 } from "@/lib/schemas";
+import { useApiErrorParser } from "@/lib/use-api-error";
+import { useSchema } from "@/lib/use-schema";
+import { WAREHOUSES } from "@/lib/warehouses";
 import { useCreateOrderMutation } from "@/store/api";
 
 const FIELDS = ["title", "description", "date"] as const;
+
+const EMPTY_VALUES: OrderFormValues = { title: "", description: "", date: "", warehouse: "" };
 
 type CreateOrderDialogProps = {
   open: boolean;
@@ -26,6 +32,10 @@ type CreateOrderDialogProps = {
 export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
   const router = useRouter();
   const [createOrder] = useCreateOrderMutation();
+  const t = useTranslations("orders.create");
+  const tc = useTranslations("common");
+  const parseError = useApiErrorParser();
+  const schema = useSchema(createOrderFormSchema);
 
   const {
     register,
@@ -33,14 +43,14 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
     reset,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<OrderFormValues, unknown, z.output<typeof orderFormSchema>>({
-    resolver: zodResolver(orderFormSchema),
+  } = useForm<OrderFormValues, unknown, z.output<OrderFormSchema>>({
+    resolver: zodResolver(schema),
     mode: "onTouched",
-    defaultValues: { title: "", description: "", date: "" },
+    defaultValues: EMPTY_VALUES,
   });
 
   useEffect(() => {
-    if (open) reset({ title: "", description: "", date: todayInputValue() });
+    if (open) reset({ ...EMPTY_VALUES, date: todayInputValue() });
   }, [open, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
@@ -49,7 +59,7 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
       onClose();
       router.push(`/orders/${order.id}`, { scroll: false });
     } catch (error) {
-      const parsed = parseApiError(error, "Не удалось создать приход");
+      const parsed = parseError(error, t("error"));
       let mapped = false;
       for (const detail of parsed.details) {
         const field = FIELDS.find((name) => name === detail.path);
@@ -67,11 +77,11 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
   const dateError = errors.date?.message;
 
   return (
-    <Dialog open={open} title="Новый приход" locked={isSubmitting} onClose={onClose}>
+    <Dialog open={open} title={t("title")} locked={isSubmitting} onClose={onClose}>
       <form className="dialog__form" noValidate onSubmit={onSubmit}>
         <div className="dialog__body dialog__body--padded">
           <div className="form">
-            <FormField id="order-title" label="Название" required error={titleError} wide>
+            <FormField id="order-title" label={t("name")} required error={titleError} wide>
               <input
                 type="text"
                 autoComplete="off"
@@ -81,14 +91,27 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
                 {...register("title")}
               />
             </FormField>
-            <FormField id="order-date" label="Дата прихода" required error={dateError}>
+            <FormField id="order-date" label={t("date")} required error={dateError}>
               <input type="date" {...fieldA11y("order-date", dateError)} {...register("date")} />
+            </FormField>
+            <FormField id="order-warehouse" label={t("warehouse")}>
+              <select
+                {...fieldA11y("order-warehouse", undefined, { control: "form-select" })}
+                {...register("warehouse")}
+              >
+                <option value="">{t("warehouseNone")}</option>
+                {WAREHOUSES.map((warehouse) => (
+                  <option key={warehouse.city} value={warehouse.city}>
+                    {warehouse.city}
+                  </option>
+                ))}
+              </select>
             </FormField>
             <FormField
               id="order-description"
-              label="Описание"
+              label={t("description")}
               error={descriptionError}
-              hint="Необязательно, до 2000 символов"
+              hint={t("descriptionHint")}
               wide
             >
               <textarea
@@ -104,7 +127,7 @@ export function CreateOrderDialog({ open, onClose }: CreateOrderDialogProps) {
         <DialogFooter disabled={isSubmitting} onCancel={onClose}>
           <button type="submit" className="dialog__action" disabled={isSubmitting}>
             <i className="bi bi-check-lg" aria-hidden="true" />
-            {isSubmitting ? "Сохранение…" : "Создать"}
+            {isSubmitting ? tc("saving") : t("submit")}
           </button>
         </DialogFooter>
       </form>

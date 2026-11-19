@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "orders": "Orders",
+    "products": "Products",
+    "login": "Sign in",
+    "register": "Sign up",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "saving": "Saving…",
+    "skipToContent": "Skip to content",
+    "none": "—"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "orders": "Orders",
+    "products": "Products",
+    "avatar": "User avatar",
+    "settings": "Profile settings",
+    "dashboard": "Analytics",
+    "users": "Users",
+    "settingsPage": "Settings"
+  },
+  "header": {
+    "home": "Inventory — home",
+    "search": "Search",
+    "online": "Online:",
+    "onlineHint": "Open application tabs",
+    "logout": "Sign out",
+    "language": "Interface language",
+    "closeSearch": "Close search"
+  },
+  "orders": {
+    "title": "Orders",
+    "add": "Add order",
+    "loadError": "Failed to load orders. Make sure the API is running.",
+    "nothingFound": "Nothing matches your search",
+    "empty": "No orders yet",
+    "details": "Order details",
+    "productsLabel": "{count, plural, one {Product} other {Products}}",
+    "productsCount": "{count} {count, plural, one {product} other {products}}",
+    "deleteLabel": "Delete order {title}",
+    "notFound": "Order not found",
+    "loadOneError": "Failed to load the order",
+    "addProduct": "Add product",
+    "noProducts": "This order has no products yet",
+    "create": {
+      "title": "New order",
+      "name": "Title",
+      "date": "Order date",
+      "description": "Description",
+      "descriptionHint": "Optional, up to 2000 characters",
+      "submit": "Create",
+      "error": "Failed to create the order",
+      "warehouse": "Warehouse",
+      "warehouseNone": "Not set"
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this order?",
+      "error": "Failed to delete the order. Please try again."
+    }
+  },
+  "products": {
+    "title": "Products",
+    "loadError": "Failed to load products. Make sure the API is running.",
+    "emptyFiltered": "No products match the filter",
+    "empty": "No products yet",
+    "typeFilter": "Type:",
+    "allTypes": "All types",
+    "from": "from",
+    "to": "to",
+    "new": "new",
+    "used": "used",
+    "deleteLabel": "Delete product {title}",
+    "create": {
+      "title": "New product",
+      "titleFor": "New product · {order}",
+      "name": "Title",
+      "serial": "Serial number",
+      "serialHint": "For example, SN-12.3456789",
+      "type": "Type",
+      "specification": "Specification",
+      "status": "Status",
+      "condition": "Condition",
+      "conditionNew": "New",
+      "conditionUsed": "Used",
+      "guaranteeStart": "Warranty from",
+      "guaranteeEnd": "Warranty to",
+      "priceUsd": "Price, $",
+      "priceUah": "Price, UAH",
+      "submit": "Add",
+      "error": "Failed to add the product",
+      "duplicateSerial": "A product with this serial number already exists",
+      "photo": "Photo",
+      "photoPick": "Choose photo",
+      "photoReplace": "Replace",
+      "photoClear": "Remove",
+      "photoHint": "Optional. PNG, JPEG or WebP, up to 2 MB",
+      "photoType": "Only PNG, JPEG and WebP are supported",
+      "photoSize": "The file is larger than 2 MB",
+      "photoUploadError": "failed to upload the photo",
+      "photoSaved": "The product was added, but the photo was not uploaded: {reason}. You can add it later by clicking the thumbnail."
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this product?",
+      "error": "Failed to delete the product. Please try again."
+    },
+    "photo": {
+      "open": "Photo of {title}",
+      "title": "Product photo",
+      "hint": "PNG, JPEG or WebP, up to 2 MB. Without a photo an icon for the product type is shown.",
+      "upload": "Upload photo",
+      "replace": "Replace photo",
+      "uploading": "Uploading…",
+      "remove": "Remove photo",
+      "type": "Only PNG, JPEG and WebP are supported",
+      "size": "The file is larger than 2 MB",
+      "error": "Failed to update the photo"
+    }
+  },
+  "status": {
+    "FREE": "Available",
+    "IN_REPAIR": "In repair",
+    "IN_USE": "In use"
+  },
+  "auth": {
+    "checkingSession": "Checking session…",
+    "email": "Email",
+    "password": "Password",
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to work with orders and products",
+      "noAccount": "No account yet?",
+      "toRegister": "Sign up",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "error": "Failed to sign in",
+      "invalidCredentials": "Invalid email or password",
+      "tooManyAttempts": "Too many attempts. Try again later"
+    },
+    "register": {
+      "title": "Sign up",
+      "subtitle": "Create an account to start tracking inventory",
+      "haveAccount": "Already have an account?",
+      "toLogin": "Sign in",
+      "name": "Name",
+      "passwordHint": "At least 8 characters, letters and digits",
+      "confirmPassword": "Repeat password",
+      "submit": "Create account",
+      "submitting": "Creating…",
+      "error": "Failed to sign up",
+      "duplicateEmail": "A user with this email already exists"
+    }
+  },
+  "validation": {
+    "maxChars": "At most {max} characters",
+    "minChars": "At least {min} characters",
+    "invalidDate": "Invalid date",
+    "orderTitleRequired": "Enter the order title",
+    "orderDateRequired": "Enter the order date",
+    "titleRequired": "Enter the title",
+    "serialRequired": "Enter the serial number",
+    "serialFormat": "Only latin letters, digits, dot, hyphen and underscore",
+    "typeRequired": "Enter the type",
+    "specificationRequired": "Enter the specification",
+    "guaranteeStartRequired": "Enter the warranty start",
+    "guaranteeEndRequired": "Enter the warranty end",
+    "guaranteeOrder": "Warranty end cannot be earlier than its start",
+    "priceRequired": "Enter the price",
+    "priceFormat": "Format: 1234.56",
+    "emailRequired": "Enter your email",
+    "emailInvalid": "Invalid email",
+    "passwordRequired": "Enter your password",
+    "passwordLetter": "Add at least one letter",
+    "passwordDigit": "Add at least one digit",
+    "confirmRequired": "Repeat the password",
+    "passwordsMismatch": "Passwords do not match"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "network": "No connection to the server. Make sure the API is running."
+  },
+  "dashboard": {
+    "title": "Analytics",
+    "loadError": "Failed to load data. Make sure the API is running.",
+    "kpi": {
+      "orders": "Orders",
+      "products": "Products",
+      "value": "Total value",
+      "inUse": "In use"
+    },
+    "byStatus": "Products by status",
+    "byType": "Products by type",
+    "byMonth": "Order value by month, UAH",
+    "map": "Order warehouses",
+    "mapLabel": "Map of warehouses where orders are registered",
+    "withoutLocation": "Without warehouse: {count}",
+    "showTable": "Show as table",
+    "columns": {
+      "status": "Status",
+      "type": "Type",
+      "count": "Count",
+      "month": "Month",
+      "value": "Value, UAH"
+    },
+    "openOrder": "Open order"
+  },
+  "users": {
+    "title": "Users",
+    "placeholder": "This section is under construction"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "avatarAlt": "Profile photo",
+      "upload": "Upload photo",
+      "uploading": "Uploading…",
+      "remove": "Remove photo",
+      "avatarHint": "PNG, JPEG or WebP, up to 2 MB",
+      "avatarType": "Only PNG, JPEG and WebP are supported",
+      "avatarSize": "The file is larger than 2 MB",
+      "avatarError": "Failed to update the photo",
+      "name": "Name",
+      "email": "Email",
+      "emailHint": "Email is used to sign in and cannot be changed",
+      "save": "Save",
+      "saved": "Saved",
+      "saveError": "Failed to save the profile"
+    },
+    "password": {
+      "title": "Change password",
+      "description": "Other sessions will be signed out after the change",
+      "current": "Current password",
+      "new": "New password",
+      "hint": "At least 8 characters, letters and digits",
+      "confirm": "Repeat new password",
+      "submit": "Change password",
+      "saved": "Password changed",
+      "error": "Failed to change the password",
+      "wrongCurrent": "Current password is incorrect",
+      "tooMany": "Too many attempts. Try again later"
+    },
+    "interface": {
+      "title": "Interface",
+      "language": "Language"
+    }
+  }
+}

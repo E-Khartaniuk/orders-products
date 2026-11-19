@@ -1,9 +1,7 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.min.css";
 import "@/styles/globals.scss";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
-import { AppShell } from "@/components/layout/AppShell";
+import { ServiceWorkerRegistrar } from "@/components/providers/ServiceWorkerRegistrar";
 import { StoreProvider } from "@/components/providers/StoreProvider";
 
 const montserrat = Montserrat({
@@ -18,16 +16,22 @@ export const metadata: Metadata = {
     default: "Inventory",
     template: "%s · Inventory",
   },
-  description: "Учёт приходов и продуктов",
+  description: "Orders & Products inventory",
+  applicationName: "Inventory",
+  appleWebApp: { capable: true, title: "Inventory", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#8bc34a",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ru" className={montserrat.variable}>
       <body>
-        <StoreProvider>
-          <AppShell>{children}</AppShell>
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   );

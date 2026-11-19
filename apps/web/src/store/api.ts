@@ -1,13 +1,88 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_URL } from "@/lib/config";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import {
+  ORDER_DETAILS_QUERY,
+  graphqlErrorToFetchError,
+  graphqlRequest,
+  normalizeOrderDetails,
+  type OrderDetailsResponse,
+} from "@/lib/graphql";
 import type { CreateOrderPayload, CreateProductPayload } from "@/lib/schemas";
-import type { ListResponse, OrderDetails, OrderSummary, Product, ProductsQuery } from "@/types/api";
+import type {
+  AuthResponse,
+  ListResponse,
+  LoginPayload,
+  OrderDetails,
+  OrderSummary,
+  Product,
+  ProductsQuery,
+  RegisterPayload,
+  User,
+} from "@/types/api";
+import { credentialsReceived, loggedOut, userUpdated } from "./auth-slice";
+import { baseQueryWithReauth } from "./base-query";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: `${API_URL}/api`, credentials: "include" }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Order", "Product"],
   endpoints: (build) => ({
+    login: build.mutation<AuthResponse, LoginPayload>({
+      query: (body) => ({ url: "/auth/login", method: "POST", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(credentialsReceived(data));
+      },
+    }),
+    register: build.mutation<AuthResponse, RegisterPayload>({
+      query: (body) => ({ url: "/auth/register", method: "POST", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(credentialsReceived(data));
+      },
+    }),
+    restoreSession: build.mutation<AuthResponse, void>({
+      query: () => ({ url: "/auth/refresh", method: "POST" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        dispatch(data ? credentialsReceived(data) : loggedOut());
+      },
+    }),
+    logout: build.mutation<void, void>({
+      query: () => ({ url: "/auth/logout", method: "POST" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        await queryFulfilled.catch(() => undefined);
+        dispatch(loggedOut());
+        dispatch(api.util.resetApiState());
+      },
+    }),
+    updateProfile: build.mutation<{ user: User }, { name?: string; locale?: "ru" | "en" }>({
+      query: (body) => ({ url: "/profile", method: "PATCH", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    uploadAvatar: build.mutation<{ user: User }, File>({
+      query: (file) => {
+        const body = new FormData();
+        body.append("avatar", file);
+        return { url: "/profile/avatar", method: "PUT", body };
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    deleteAvatar: build.mutation<{ user: User }, void>({
+      query: () => ({ url: "/profile/avatar", method: "DELETE" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled.catch(() => ({ data: null }));
+        if (data) dispatch(userUpdated(data.user));
+      },
+    }),
+    changePassword: build.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: (body) => ({ url: "/auth/password", method: "PUT", body }),
+    }),
     getOrders: build.query<ListResponse<OrderSummary>, { search?: string } | void>({
       query: (params) => ({ url: "/orders", params: params ?? undefined }),
       providesTags: (result) => [
@@ -16,7 +91,23 @@ export const api = createApi({
       ],
     }),
     getOrder: build.query<OrderDetails, number>({
-      query: (id) => `/orders/${id}`,
+      async queryFn(id, _api, _extra, baseQuery) {
+        const result = await baseQuery(graphqlRequest(ORDER_DETAILS_QUERY, { id: String(id) }));
+        if (result.error) return { error: result.error };
+
+        const body = result.data as OrderDetailsResponse;
+        if (body.errors?.length) return { error: graphqlErrorToFetchError(body.errors[0]) };
+        if (!body.data?.order) {
+          return {
+            error: graphqlErrorToFetchError({
+              message: `Order with id ${id} not found`,
+              extensions: { code: "NOT_FOUND" },
+            }),
+          };
+        }
+
+        return { data: normalizeOrderDetails(body.data.order) };
+      },
       providesTags: (_result, _error, id) => [{ type: "Order", id }],
     }),
     createOrder: build.mutation<OrderSummary, CreateOrderPayload>({
@@ -51,6 +142,26 @@ export const api = createApi({
         { type: "Order", id: "LIST" },
       ],
     }),
+    uploadProductPhoto: build.mutation<Product, { id: number; orderId: number; file: File }>({
+      query: ({ id, file }) => {
+        const body = new FormData();
+        body.append("photo", file);
+        return { url: `/products/${id}/photo`, method: "PUT", body };
+      },
+      invalidatesTags: (_result, _error, { id, orderId }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+        { type: "Order", id: orderId },
+      ],
+    }),
+    deleteProductPhoto: build.mutation<Product, { id: number; orderId: number }>({
+      query: ({ id }) => ({ url: `/products/${id}/photo`, method: "DELETE" }),
+      invalidatesTags: (_result, _error, { id, orderId }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+        { type: "Order", id: orderId },
+      ],
+    }),
     deleteProduct: build.mutation<void, { id: number; orderId: number }>({
       query: ({ id }) => ({ url: `/products/${id}`, method: "DELETE" }),
       invalidatesTags: (_result, _error, { id, orderId }) => [
@@ -65,6 +176,7 @@ export const api = createApi({
 });
 
 export const {
+  usePrefetch,
   useGetOrdersQuery,
   useGetOrderQuery,
   useCreateOrderMutation,
@@ -73,4 +185,14 @@ export const {
   useGetProductTypesQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
+  useUploadProductPhotoMutation,
+  useDeleteProductPhotoMutation,
+  useLoginMutation,
+  useRegisterMutation,
+  useRestoreSessionMutation,
+  useLogoutMutation,
+  useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useDeleteAvatarMutation,
+  useChangePasswordMutation,
 } = api;

@@ -1,11 +1,18 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { api } from "./api";
+import { authSlice } from "./auth-slice";
+import { localeSyncMiddleware } from "./locale-sync";
+import { persistenceMiddleware } from "./persistence-middleware";
+import { serverEventsMiddleware } from "./server-events";
+import { prefsSlice } from "./prefs-slice";
 import { sessionsSlice } from "./sessions-slice";
 import { uiSlice } from "./ui-slice";
 
 const rootReducer = combineReducers({
   [api.reducerPath]: api.reducer,
+  [authSlice.name]: authSlice.reducer,
+  [prefsSlice.name]: prefsSlice.reducer,
   [sessionsSlice.name]: sessionsSlice.reducer,
   [uiSlice.name]: uiSlice.reducer,
 });
@@ -13,7 +20,14 @@ const rootReducer = combineReducers({
 export function makeStore() {
   return configureStore({
     reducer: rootReducer,
-    middleware: (getDefault) => getDefault().concat(api.middleware),
+    middleware: (getDefault) =>
+      getDefault()
+        .prepend(
+          persistenceMiddleware.middleware,
+          serverEventsMiddleware.middleware,
+          localeSyncMiddleware.middleware,
+        )
+        .concat(api.middleware),
   });
 }
 
