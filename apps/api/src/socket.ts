@@ -11,7 +11,9 @@ export function createSocketServer(httpServer: HttpServer) {
     cors: { origin: config.CORS_ORIGIN, credentials: true },
   });
 
-  const broadcastCount = () => io.emit("sessions:count", io.engine.clientsCount);
+  // Namespace sockets drop the closing socket before "disconnect" fires;
+  // io.engine.clientsCount still includes it at that point.
+  const broadcastCount = () => io.emit("sessions:count", io.of("/").sockets.size);
 
   io.on("connection", (socket) => {
     broadcastCount();

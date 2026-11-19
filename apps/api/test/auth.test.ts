@@ -141,15 +141,33 @@ describe("POST /api/auth/refresh", () => {
   it("rotates refresh token and returns new access token", async () => {
     const { token, session } = await loginAndGetCookie();
     prismaMock.refreshSession.findUnique.mockResolvedValue({ ...session, user: userRecord });
+    prismaMock.refreshSession.updateMany.mockResolvedValue({ count: 1 });
 
     const res = await request(app)
       .post("/api/auth/refresh")
       .set("Cookie", `refresh_token=${token}`);
 
+    const nextToken = cookieValue(extractRefreshCookie(res)!);
     expect(res.status).toBe(200);
     expect(res.body.accessToken).toEqual(expect.any(String));
-    expect(prismaMock.refreshSession.delete).toHaveBeenCalledWith({ where: { id: session.id } });
-    expect(cookieValue(extractRefreshCookie(res)!)).not.toBe(token);
+    expect(nextToken).not.toBe(token);
+    expect(prismaMock.refreshSession.updateMany).toHaveBeenCalledWith({
+      where: { id: session.id, tokenHash: hashToken(token) },
+      data: expect.objectContaining({ tokenHash: hashToken(nextToken) }),
+    });
+  });
+
+  it("revokes all sessions when a concurrent refresh already rotated the token", async () => {
+    const { token, session } = await loginAndGetCookie();
+    prismaMock.refreshSession.findUnique.mockResolvedValue({ ...session, user: userRecord });
+    prismaMock.refreshSession.updateMany.mockResolvedValue({ count: 0 });
+
+    const res = await request(app)
+      .post("/api/auth/refresh")
+      .set("Cookie", `refresh_token=${token}`);
+
+    expect(res.status).toBe(401);
+    expect(prismaMock.refreshSession.deleteMany).toHaveBeenCalledWith({ where: { userId: 1 } });
   });
 
   it("revokes all sessions when an old token is reused", async () => {

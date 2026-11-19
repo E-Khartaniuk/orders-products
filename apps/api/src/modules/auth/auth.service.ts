@@ -103,18 +103,35 @@ export async function refresh(refreshToken: string | undefined, userAgent?: stri
     throw new HttpError(401, "Session not found");
   }
 
-  if (session.tokenHash !== hashToken(refreshToken)) {
-    await prisma.refreshSession.deleteMany({ where: { userId: session.userId } });
-    throw new HttpError(401, "Refresh token reuse detected");
-  }
-
-  await prisma.refreshSession.delete({ where: { id: session.id } });
+  const presentedHash = hashToken(refreshToken);
+  if (session.tokenHash !== presentedHash) return revokeAllSessions(session.userId);
 
   if (session.expiresAt.getTime() <= Date.now()) {
+    await prisma.refreshSession.deleteMany({ where: { id: session.id } });
     throw new HttpError(401, "Session expired");
   }
 
-  return issueTokens(session.user, userAgent);
+  // Rotation keeps the session id, so a stolen token used after the owner's refresh
+  // (or vice versa) hits the hash check above and ends the whole token family.
+  const expiresAt = refreshExpiresAt();
+  const nextToken = await signRefreshToken(session.id, session.userId, expiresAt);
+  const { count } = await prisma.refreshSession.updateMany({
+    where: { id: session.id, tokenHash: presentedHash },
+    data: { tokenHash: hashToken(nextToken), expiresAt, userAgent: userAgent?.slice(0, 255) },
+  });
+  if (count === 0) return revokeAllSessions(session.userId);
+
+  return {
+    user: toUserDto(session.user),
+    accessToken: await signAccessToken({ userId: session.user.id, email: session.user.email }),
+    refreshToken: nextToken,
+    refreshExpiresAt: expiresAt,
+  };
+}
+
+async function revokeAllSessions(userId: number): Promise<never> {
+  await prisma.refreshSession.deleteMany({ where: { userId } });
+  throw new HttpError(401, "Refresh token reuse detected");
 }
 
 export async function logout(refreshToken: string | undefined) {
