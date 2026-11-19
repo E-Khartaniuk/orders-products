@@ -6,6 +6,7 @@ import { useTranslations } from "use-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDocumentTitle } from "@/i18n/use-document-title";
 import { SkeletonList, StateMessage } from "@/components/ui/StateMessage";
+import { LazyMount } from "@/components/ui/LazyMount";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useAppSelector } from "@/store";
 import { useGetProductsQuery } from "@/store/api";
@@ -13,11 +14,13 @@ import type { Product } from "@/types/api";
 import { ProductRow } from "./ProductRow";
 import { ProductTypeFilter } from "./ProductTypeFilter";
 
-const ProductPhotoDialog = dynamic(() =>
-  import("./ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+const ProductPhotoDialog = dynamic(
+  () => import("./ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
+  { ssr: false },
 );
-const DeleteProductDialog = dynamic(() =>
-  import("./DeleteProductDialog").then((module) => module.DeleteProductDialog),
+const DeleteProductDialog = dynamic(
+  () => import("./DeleteProductDialog").then((module) => module.DeleteProductDialog),
+  { ssr: false },
 );
 
 export function ProductsView() {
@@ -67,8 +70,12 @@ export function ProductsView() {
         )}
       </div>
 
-      <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
-      <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      <LazyMount when={productToDelete !== null}>
+        <DeleteProductDialog product={productToDelete} onClose={closeDialog} />
+      </LazyMount>
+      <LazyMount when={photoProduct !== null}>
+        <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      </LazyMount>
     </>
   );
 }

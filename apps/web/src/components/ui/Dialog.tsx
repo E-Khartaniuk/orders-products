@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "use-intl";
@@ -68,14 +68,14 @@ export function Dialog({
     <AnimatePresence>
       {open && (
         <div className="dialog">
-          <motion.div
+          <m.div
             className="dialog__backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => !locked && onClose()}
           />
-          <motion.div
+          <m.div
             ref={panelRef}
             className={clsx("dialog__panel", `dialog__panel--${size}`)}
             role={role}
@@ -99,7 +99,7 @@ export function Dialog({
               {title}
             </h2>
             {children}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>,

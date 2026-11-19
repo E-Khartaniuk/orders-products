@@ -1,12 +1,8 @@
 import { createTranslator } from "use-intl";
 import { describe, expect, it } from "vitest";
 import ru from "@/i18n/messages/ru.json";
-import {
-  AVATAR_MAX_BYTES,
-  checkAvatarFile,
-  createPasswordFormSchema,
-  createProfileFormSchema,
-} from "./profile-schemas";
+import { IMAGE_MAX_BYTES, checkImageFile } from "./image-files";
+import { createPasswordFormSchema, createProfileFormSchema } from "./profile-schemas";
 
 const t = createTranslator({ locale: "ru", messages: ru, namespace: "validation" });
 
@@ -40,12 +36,12 @@ describe("password form", () => {
   });
 });
 
-describe("checkAvatarFile", () => {
+describe("checkImageFile", () => {
   it.each([
     [{ type: "image/png", size: 1000 }, null],
     [{ type: "image/gif", size: 1000 }, "type"],
-    [{ type: "image/jpeg", size: AVATAR_MAX_BYTES + 1 }, "size"],
+    [{ type: "image/jpeg", size: IMAGE_MAX_BYTES + 1 }, "size"],
   ])("%o → %s", (file, expected) => {
-    expect(checkAvatarFile(file)).toBe(expected);
+    expect(checkImageFile(file)).toBe(expected);
   });
 });

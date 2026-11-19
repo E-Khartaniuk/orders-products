@@ -6,7 +6,7 @@ import { useAppDispatch } from "@/store";
 import {
   PREFS_KEY,
   persistedStateRestored,
-  prefsSchema,
+  parsePrefs,
   readPersistedState,
 } from "@/store/persisted";
 
@@ -22,8 +22,8 @@ export function PersistenceBootstrap() {
       if (event.key !== PREFS_KEY || event.newValue === null) return;
       if (event.storageArea !== getStorage("local")) return;
       try {
-        const parsed = prefsSchema.safeParse(JSON.parse(event.newValue));
-        if (parsed.success) dispatch(persistedStateRestored(parsed.data));
+        const prefs = parsePrefs(JSON.parse(event.newValue));
+        if (prefs) dispatch(persistedStateRestored(prefs));
       } catch {
         // Ignore values written by something other than this app.
       }
