@@ -32,7 +32,7 @@ function sendAuth(res: Response, result: authService.AuthResult, status = 200) {
 
 const credentialsLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: config.NODE_ENV === "test" ? 1000 : 20,
+  limit: config.AUTH_RATE_LIMIT ?? (config.NODE_ENV === "test" ? 1000 : 20),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: { error: { message: "Too many attempts, try again later" } },

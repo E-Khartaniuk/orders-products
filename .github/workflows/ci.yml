@@ -23,8 +23,37 @@ jobs:
       - run: npm run test
       - run: npm run build
 
+  integration:
+    name: API integration tests
+    runs-on: ubuntu-latest
+    needs: check
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: inventory_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: mysql://root:root@127.0.0.1:3306/inventory_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate -w @op/api
+      - run: npm run test:integration
+
   docker:
-    name: docker compose smoke test
+    name: docker compose smoke test and e2e
     runs-on: ubuntu-latest
     needs: check
     timeout-minutes: 30
@@ -33,17 +62,34 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          cache: npm
       - name: Prepare .env
         run: |
           cp .env.example .env
           sed -i "s/^JWT_ACCESS_SECRET=.*/JWT_ACCESS_SECRET=$(openssl rand -hex 32)/" .env
           sed -i "s/^JWT_REFRESH_SECRET=.*/JWT_REFRESH_SECRET=$(openssl rand -hex 32)/" .env
+          sed -i "s/^AUTH_RATE_LIMIT=.*/AUTH_RATE_LIMIT=1000/" .env
       - name: Build and start the stack
         run: docker compose up --build --detach --wait --wait-timeout 300
       - name: Seed the database
         run: docker compose exec -T api npx prisma db seed
       - name: Smoke test
         run: node scripts/smoke-test.mjs
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: End-to-end tests
+        run: npm run test:e2e
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
       - name: Container logs
         if: failure()
         run: docker compose logs --no-color

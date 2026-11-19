@@ -13,6 +13,7 @@ const envSchema = z
     JWT_REFRESH_SECRET: z.string().min(32).default(`${DEV_SECRET}-refresh`),
     ACCESS_TOKEN_TTL: z.string().default("15m"),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
+    AUTH_RATE_LIMIT: z.coerce.number().int().positive().optional(),
     UPLOADS_DIR: z.string().default(path.resolve("uploads")),
     IMAGE_MAX_BYTES: z.coerce
       .number()
