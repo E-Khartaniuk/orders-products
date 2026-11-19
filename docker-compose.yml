@@ -34,6 +34,7 @@ services:
       DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@inventory.local}
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-demo12345}
       UPLOADS_DIR: /app/apps/api/uploads
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-20}
     volumes:
       - api-uploads:/app/apps/api/uploads
     ports:

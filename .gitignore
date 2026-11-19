@@ -13,3 +13,6 @@ apps/api/src/generated/
 Thumbs.db
 *.log
 apps/api/uploads/
+test-results/
+playwright-report/
+blob-report/
