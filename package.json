@@ -30,7 +30,8 @@
     "db:seed": "npm run db:seed -w @op/api",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
-    "prepare": "husky"
+    "prepare": "husky",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,json,md,scss,css,yml,yaml}": "prettier --write"

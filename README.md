@@ -42,6 +42,8 @@ docker compose exec api npx prisma db seed
 - API: http://localhost:4000/api/health
 - Демо-вход: `demo@inventory.local` / `demo12345` (создаётся сидом, меняется через `DEMO_USER_EMAIL` / `DEMO_USER_PASSWORD`)
 
+Проверить запущенный стенд: `npm run smoke` — здоровье API и БД, вход демо-пользователем, приходы, продукты, GraphQL, отказ без токена, страница входа и PWA-манифест. Тот же сценарий запускается в CI: GitHub Actions собирает образы, поднимает `docker compose` и ждёт healthcheck всех сервисов.
+
 Остановить: `docker compose down` (с удалением данных БД: `docker compose down -v`).
 
 ## Локальная разработка
