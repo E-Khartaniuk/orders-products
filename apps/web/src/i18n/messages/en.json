@@ -74,6 +74,16 @@
     "empty": "No products yet",
     "typeFilter": "Type:",
     "allTypes": "All types",
+    "specificationFilter": "Specification:",
+    "allSpecifications": "All specifications",
+    "statusFilter": "Status:",
+    "allStatuses": "All statuses",
+    "conditionFilter": "Condition:",
+    "allConditions": "All",
+    "condition": {
+      "new": "New",
+      "used": "Used"
+    },
     "from": "from",
     "to": "to",
     "new": "new",

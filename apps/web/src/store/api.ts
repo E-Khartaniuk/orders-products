@@ -133,6 +133,10 @@ export const api = createApi({
       query: () => "/products/types",
       providesTags: [{ type: "Product", id: "TYPES" }],
     }),
+    getProductSpecifications: build.query<{ items: string[] }, string | void>({
+      query: (type) => ({ url: "/products/specifications", params: type ? { type } : undefined }),
+      providesTags: [{ type: "Product", id: "TYPES" }],
+    }),
     createProduct: build.mutation<Product, CreateProductPayload>({
       query: (body) => ({ url: "/products", method: "POST", body }),
       invalidatesTags: (_result, _error, { orderId }) => [
@@ -183,6 +187,7 @@ export const {
   useDeleteOrderMutation,
   useGetProductsQuery,
   useGetProductTypesQuery,
+  useGetProductSpecificationsQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
   useUploadProductPhotoMutation,

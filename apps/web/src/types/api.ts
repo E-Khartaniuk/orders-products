@@ -70,5 +70,8 @@ export type RegisterPayload = LoginPayload & { name: string; locale?: "ru" | "en
 
 export type ProductsQuery = {
   type?: string;
+  specification?: string;
+  status?: ProductStatus;
+  isNew?: boolean;
   search?: string;
 };
