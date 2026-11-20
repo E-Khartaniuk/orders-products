@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { makeStore } from "./index";
 import { PREFS_KEY, SESSION_KEY, persistedStateRestored, readPersistedState } from "./persisted";
 import { localeChanged } from "./prefs-slice";
-import { productTypeFilterChanged, searchChanged } from "./ui-slice";
+import {
+  productConditionFilterChanged,
+  productSpecificationFilterChanged,
+  productStatusFilterChanged,
+  productTypeFilterChanged,
+  searchChanged,
+} from "./ui-slice";
 
 class MemoryStorage implements Storage {
   private items = new Map<string, string>();
@@ -53,6 +59,24 @@ describe("readPersistedState", () => {
     expect(readPersistedState(local, session)).toEqual({});
   });
 
+  it("restores all product filters and rejects unknown status or condition", () => {
+    const filters = {
+      productTypeFilter: "Monitors",
+      productSpecificationFilter: "27 inch",
+      productStatusFilter: "IN_REPAIR",
+      productConditionFilter: "used",
+    };
+    const local = new MemoryStorage();
+    local.setItem(PREFS_KEY, JSON.stringify(filters));
+    expect(readPersistedState(local, null)).toEqual(filters);
+
+    local.setItem(PREFS_KEY, JSON.stringify({ ...filters, productStatusFilter: "BROKEN" }));
+    expect(readPersistedState(local, null)).toEqual({});
+
+    local.setItem(PREFS_KEY, JSON.stringify({ ...filters, productConditionFilter: "old" }));
+    expect(readPersistedState(local, null)).toEqual({});
+  });
+
   it("works without storage", () => {
     expect(readPersistedState(null, null)).toEqual({});
   });
@@ -67,11 +91,17 @@ describe("persistence middleware", () => {
     const store = makeStore();
     store.dispatch(localeChanged("en"));
     store.dispatch(productTypeFilterChanged("Laptops"));
+    store.dispatch(productSpecificationFilterChanged("16 GB RAM"));
+    store.dispatch(productStatusFilterChanged("FREE"));
+    store.dispatch(productConditionFilterChanged("new"));
     store.dispatch(searchChanged("lenovo"));
 
     expect(JSON.parse(local.getItem(PREFS_KEY)!)).toEqual({
       locale: "en",
       productTypeFilter: "Laptops",
+      productSpecificationFilter: "16 GB RAM",
+      productStatusFilter: "FREE",
+      productConditionFilter: "new",
     });
     expect(JSON.parse(session.getItem(SESSION_KEY)!)).toEqual({ search: "lenovo" });
   });
@@ -81,6 +111,23 @@ describe("persistence middleware", () => {
     store.dispatch(persistedStateRestored({ locale: "en", search: "lg" }));
 
     expect(store.getState().prefs.locale).toBe("en");
-    expect(store.getState().ui).toEqual({ search: "lg", productTypeFilter: "" });
+    expect(store.getState().ui).toEqual({
+      search: "lg",
+      productTypeFilter: "",
+      productSpecificationFilter: "",
+      productStatusFilter: "",
+      productConditionFilter: "",
+    });
+  });
+
+  it("clears the specification when the type changes, because specifications depend on it", () => {
+    const store = makeStore();
+    store.dispatch(productTypeFilterChanged("Monitors"));
+    store.dispatch(productSpecificationFilterChanged("27 inch"));
+    store.dispatch(productTypeFilterChanged("Monitors"));
+    expect(store.getState().ui.productSpecificationFilter).toBe("27 inch");
+
+    store.dispatch(productTypeFilterChanged("Laptops"));
+    expect(store.getState().ui.productSpecificationFilter).toBe("");
   });
 });

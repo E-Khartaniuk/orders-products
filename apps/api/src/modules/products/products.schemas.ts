@@ -7,10 +7,22 @@ export const productIdParams = z.object({
   id: z.coerce.number().int().positive(),
 });
 
+const booleanParam = z.preprocess(
+  (value) => (value === "true" ? true : value === "false" ? false : value),
+  z.boolean(),
+);
+
 export const listProductsQuery = z.object({
   type: z.string().trim().min(1).optional(),
+  specification: z.string().trim().min(1).max(255).optional(),
+  status: z.enum(PRODUCT_STATUSES).optional(),
+  isNew: booleanParam.optional(),
   orderId: z.coerce.number().int().positive().optional(),
   search: z.string().trim().min(1).max(100).optional(),
+});
+
+export const listSpecificationsQuery = z.object({
+  type: z.string().trim().min(1).optional(),
 });
 
 const priceInput = z.object({
@@ -46,4 +58,5 @@ export const createProductBody = z
   });
 
 export type ListProductsQuery = z.infer<typeof listProductsQuery>;
+export type ListSpecificationsQuery = z.infer<typeof listSpecificationsQuery>;
 export type CreateProductBody = z.infer<typeof createProductBody>;

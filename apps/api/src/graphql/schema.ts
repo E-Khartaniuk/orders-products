@@ -119,8 +119,16 @@ export const typeDefs = /* GraphQL */ `
     me: User!
     orders(search: String): [Order!]!
     order(id: ID!): Order
-    products(type: String, search: String, orderId: ID): [Product!]!
+    products(
+      type: String
+      specification: String
+      status: ProductStatus
+      isNew: Boolean
+      search: String
+      orderId: ID
+    ): [Product!]!
     productTypes: [String!]!
+    productSpecifications(type: String): [String!]!
   }
 
   type Mutation {

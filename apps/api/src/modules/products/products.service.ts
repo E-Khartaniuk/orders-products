@@ -3,12 +3,19 @@ import { publish } from "../../events/bus.js";
 import { HttpError } from "../../lib/http-error.js";
 import { removeStoredImage, storeImage } from "../../lib/uploads.js";
 import { productInclude, toProductDto } from "./products.mapper.js";
-import type { CreateProductBody, ListProductsQuery } from "./products.schemas.js";
+import type {
+  CreateProductBody,
+  ListProductsQuery,
+  ListSpecificationsQuery,
+} from "./products.schemas.js";
 
 export async function listProducts(query: ListProductsQuery) {
   const products = await prisma.product.findMany({
     where: {
       type: query.type,
+      specification: query.specification,
+      status: query.status,
+      isNew: query.isNew,
       orderId: query.orderId,
       ...(query.search && {
         OR: [{ title: { contains: query.search } }, { serialNumber: { contains: query.search } }],
@@ -45,6 +52,17 @@ export async function listProductTypes() {
   });
 
   return rows.map((row) => row.type);
+}
+
+export async function listProductSpecifications(query: ListSpecificationsQuery) {
+  const rows = await prisma.product.findMany({
+    where: { type: query.type },
+    distinct: ["specification"],
+    select: { specification: true },
+    orderBy: { specification: "asc" },
+  });
+
+  return rows.map((row) => row.specification);
 }
 
 export async function getProduct(id: number) {

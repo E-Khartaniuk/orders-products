@@ -12,7 +12,7 @@ import { useAppSelector } from "@/store";
 import { useGetProductsQuery } from "@/store/api";
 import type { Product } from "@/types/api";
 import { ProductRow } from "./ProductRow";
-import { ProductTypeFilter } from "./ProductTypeFilter";
+import { ProductFilters } from "./ProductFilters";
 
 const ProductPhotoDialog = dynamic(
   () => import("./ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
@@ -27,10 +27,16 @@ export function ProductsView() {
   const t = useTranslations("products");
   useDocumentTitle(t("title"));
   const type = useAppSelector((state) => state.ui.productTypeFilter);
+  const specification = useAppSelector((state) => state.ui.productSpecificationFilter);
+  const status = useAppSelector((state) => state.ui.productStatusFilter);
+  const condition = useAppSelector((state) => state.ui.productConditionFilter);
   const search = useDebouncedValue(useAppSelector((state) => state.ui.search).trim());
 
   const { data, isLoading, isFetching, isError, refetch } = useGetProductsQuery({
     ...(type && { type }),
+    ...(specification && { specification }),
+    ...(status && { status }),
+    ...(condition && { isNew: condition === "new" }),
     ...(search && { search }),
   });
 
@@ -39,12 +45,12 @@ export function ProductsView() {
   const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
   const closePhoto = useCallback(() => setPhotoProduct(null), []);
 
-  const filtered = Boolean(type || search);
+  const filtered = Boolean(type || specification || status || condition || search);
 
   return (
     <>
       <PageHeader title={t("title")} total={data?.total ?? 0}>
-        <ProductTypeFilter />
+        <ProductFilters />
       </PageHeader>
 
       <div className="products">
