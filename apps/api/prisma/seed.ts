@@ -24,6 +24,11 @@ const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? "demo@inventory.local";
 const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? "demo12345";
 
 async function main() {
+  if (process.env.SEED_IF_EMPTY === "true" && (await prisma.user.count()) > 0) {
+    console.log("Database already has data, seed skipped");
+    return;
+  }
+
   faker.seed(42);
 
   await prisma.price.deleteMany();

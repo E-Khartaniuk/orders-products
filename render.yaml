@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: orders-products
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL_CA
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: DEMO_USER_EMAIL
+        value: demo@inventory.local
+      - key: DEMO_USER_PASSWORD
+        value: demo12345
+      - key: AUTH_RATE_LIMIT
+        value: "20"

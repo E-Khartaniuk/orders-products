@@ -7,6 +7,7 @@ if (!databaseUrl) {
 }
 
 const url = new URL(databaseUrl);
+const sslCa = process.env.DATABASE_SSL_CA?.replace(/\\n/g, "\n");
 
 const adapter = new PrismaMariaDb({
   host: url.hostname,
@@ -14,8 +15,9 @@ const adapter = new PrismaMariaDb({
   user: decodeURIComponent(url.username),
   password: decodeURIComponent(url.password),
   database: url.pathname.slice(1),
+  ssl: sslCa ? { ca: sslCa, rejectUnauthorized: true } : undefined,
   connectionLimit: 10,
-  connectTimeout: 3000,
+  connectTimeout: 10000,
   acquireTimeout: 5000,
   allowPublicKeyRetrieval: true,
 });
