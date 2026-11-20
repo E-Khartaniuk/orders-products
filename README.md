@@ -200,7 +200,71 @@ query OrderDetails($id: ID!) {
 
 Схема описана в [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma): `orders` (с координатами склада: `city`, `latitude`, `longitude`), `products`, `prices` (цена продукта в USD и UAH), `product_groups`, `users`, `refresh_sessions`.
 
-Файл для MySQL Workbench: `docs/db-schema.mwb` (Database → Reverse Engineer по поднятой БД).
+Модель для MySQL Workbench 8.0: [`docs/db-schema.mwb`](docs/db-schema.mwb), схема `inventory` с EER-диаграммой. Получена из БД после `prisma migrate deploy`, служебная таблица `_prisma_migrations` не включена.
+
+```mermaid
+erDiagram
+    orders ||--o{ products : "order_id (CASCADE)"
+    product_groups |o--o{ products : "group_id (SET NULL)"
+    users |o--o{ products : "user_id (SET NULL)"
+    products ||--o{ prices : "product_id (CASCADE)"
+    users ||--o{ refresh_sessions : "user_id (CASCADE)"
+
+    orders {
+        int id PK
+        varchar title
+        text description
+        datetime date
+        datetime created_at
+        varchar city
+        double latitude
+        double longitude
+    }
+    products {
+        int id PK
+        varchar serial_number UK
+        tinyint is_new
+        varchar photo
+        varchar title
+        varchar type "index"
+        varchar specification
+        enum status "FREE, IN_REPAIR, IN_USE"
+        datetime guarantee_start
+        datetime guarantee_end
+        datetime date
+        int order_id FK
+        int group_id FK
+        int user_id FK
+    }
+    prices {
+        int id PK
+        decimal value
+        enum symbol "USD, UAH; unique with product_id"
+        tinyint is_default
+        int product_id FK
+    }
+    product_groups {
+        int id PK
+        varchar title
+    }
+    users {
+        int id PK
+        varchar email UK
+        varchar password_hash
+        varchar name
+        varchar avatar_url
+        varchar locale
+        datetime created_at
+    }
+    refresh_sessions {
+        varchar id PK "uuid"
+        char token_hash "sha256"
+        varchar user_agent
+        datetime expires_at
+        datetime created_at
+        int user_id FK
+    }
+```
 
 ## Интерфейс
 
