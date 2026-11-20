@@ -78,5 +78,22 @@
       border-color: $color-primary;
       box-shadow: 0 0 0 3px rgba($color-primary, 0.2);
     }
+
+    &--compact {
+      min-width: 150px;
+    }
+  }
+
+  @media (max-width: ($breakpoint-md - 1px)) {
+    width: 100%;
+
+    &__label {
+      min-width: 96px;
+    }
+
+    &__select {
+      flex: 1;
+      min-width: 0;
+    }
   }
 }

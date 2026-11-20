@@ -49,6 +49,30 @@ describe("GET /api/products", () => {
       expect.objectContaining({ where: expect.objectContaining({ type: "Monitors" }) }),
     );
   });
+
+  it("filters by specification, status and condition", async () => {
+    prismaMock.product.findMany.mockResolvedValue([]);
+
+    await api
+      .get("/api/products")
+      .query({ specification: "27 inch", status: "IN_REPAIR", isNew: "false" });
+
+    expect(prismaMock.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          specification: "27 inch",
+          status: "IN_REPAIR",
+          isNew: false,
+        }),
+      }),
+    );
+  });
+
+  it("rejects an unknown status or condition", async () => {
+    expect((await api.get("/api/products").query({ status: "BROKEN" })).status).toBe(400);
+    expect((await api.get("/api/products").query({ isNew: "maybe" })).status).toBe(400);
+    expect(prismaMock.product.findMany).not.toHaveBeenCalled();
+  });
 });
 
 describe("GET /api/products/types", () => {
@@ -58,6 +82,22 @@ describe("GET /api/products/types", () => {
     const res = await api.get("/api/products/types");
 
     expect(res.body.items).toEqual(["Laptops", "Monitors"]);
+  });
+});
+
+describe("GET /api/products/specifications", () => {
+  it("returns distinct specifications of the selected type", async () => {
+    prismaMock.product.findMany.mockResolvedValue([
+      { specification: "24 inch" },
+      { specification: "27 inch" },
+    ]);
+
+    const res = await api.get("/api/products/specifications").query({ type: "Monitors" });
+
+    expect(res.body.items).toEqual(["24 inch", "27 inch"]);
+    expect(prismaMock.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { type: "Monitors" }, distinct: ["specification"] }),
+    );
   });
 });
 

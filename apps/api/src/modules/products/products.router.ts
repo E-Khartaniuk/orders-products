@@ -4,9 +4,11 @@ import { validate, type Validated } from "../../middleware/validate.js";
 import {
   createProductBody,
   listProductsQuery,
+  listSpecificationsQuery,
   productIdParams,
   type CreateProductBody,
   type ListProductsQuery,
+  type ListSpecificationsQuery,
 } from "./products.schemas.js";
 import * as productsService from "./products.service.js";
 
@@ -21,6 +23,15 @@ productsRouter.get("/", validate({ query: listProductsQuery }), async (_req, res
 productsRouter.get("/types", async (_req, res) => {
   res.json({ items: await productsService.listProductTypes() });
 });
+
+productsRouter.get(
+  "/specifications",
+  validate({ query: listSpecificationsQuery }),
+  async (_req, res) => {
+    const { query } = res.locals.validated as Validated<unknown, ListSpecificationsQuery>;
+    res.json({ items: await productsService.listProductSpecifications(query) });
+  },
+);
 
 productsRouter.get("/:id", validate({ params: productIdParams }), async (_req, res) => {
   const { params } = res.locals.validated as Validated<{ id: number }>;

@@ -4,7 +4,11 @@ import { getMe } from "../modules/auth/auth.service.js";
 import { createOrderBody, listOrdersQuery } from "../modules/orders/orders.schemas.js";
 import * as ordersService from "../modules/orders/orders.service.js";
 import type { ProductDto } from "../modules/products/products.mapper.js";
-import { createProductBody, listProductsQuery } from "../modules/products/products.schemas.js";
+import {
+  createProductBody,
+  listProductsQuery,
+  listSpecificationsQuery,
+} from "../modules/products/products.schemas.js";
 import * as productsService from "../modules/products/products.service.js";
 import type { GraphqlContext } from "./context.js";
 
@@ -56,10 +60,20 @@ export const resolvers = {
 
     products: (
       _: unknown,
-      args: { type?: string | null; search?: string | null; orderId?: string | null },
+      args: {
+        type?: string | null;
+        specification?: string | null;
+        status?: string | null;
+        isNew?: boolean | null;
+        search?: string | null;
+        orderId?: string | null;
+      },
     ) => productsService.listProducts(listProductsQuery.parse(withoutNulls(args))),
 
     productTypes: () => productsService.listProductTypes(),
+
+    productSpecifications: (_: unknown, args: { type?: string | null }) =>
+      productsService.listProductSpecifications(listSpecificationsQuery.parse(withoutNulls(args))),
   },
 
   Mutation: {

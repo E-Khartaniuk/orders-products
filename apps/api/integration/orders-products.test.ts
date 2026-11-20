@@ -89,6 +89,31 @@ describe("orders and products against MySQL", () => {
     expect(types.body.items).toEqual(expect.arrayContaining(["Laptops", "Monitors"]));
   });
 
+  it("combines specification, status and condition filters and lists specifications by type", async () => {
+    const order = await createOrder();
+    const send = (overrides: Record<string, unknown>) =>
+      api.post("/api/products").send(productInput(order.id, overrides)).expect(201);
+    await send({ title: "A", specification: "24 inch", status: "IN_REPAIR", isNew: false });
+    await send({ title: "B", specification: "24 inch", status: "FREE", isNew: false });
+    await send({ title: "C", specification: "27 inch, 4K", status: "IN_REPAIR", isNew: true });
+    await send({ title: "D", type: "Laptops", specification: "16 GB RAM" });
+
+    const titles = async (query: string) =>
+      (await api.get(`/api/products?${query}`).expect(200)).body.items
+        .map((p: { title: string }) => p.title)
+        .sort();
+
+    expect(await titles("specification=24%20inch")).toEqual(["A", "B"]);
+    expect(await titles("status=IN_REPAIR")).toEqual(["A", "C"]);
+    expect(await titles("isNew=false")).toEqual(["A", "B"]);
+    expect(await titles("type=Monitors&status=IN_REPAIR&isNew=true")).toEqual(["C"]);
+
+    const monitors = await api.get("/api/products/specifications?type=Monitors").expect(200);
+    const all = await api.get("/api/products/specifications").expect(200);
+    expect(monitors.body.items).toEqual(["24 inch", "27 inch, 4K"]);
+    expect(all.body.items).toEqual(["16 GB RAM", "24 inch", "27 inch, 4K"]);
+  });
+
   it("rejects a duplicate serial number with 409 using the unique index", async () => {
     const order = await createOrder();
     const input = productInput(order.id);

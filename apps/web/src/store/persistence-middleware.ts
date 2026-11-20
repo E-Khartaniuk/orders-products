@@ -7,7 +7,13 @@ import type { UiState } from "./ui-slice";
 type PersistedSlices = { prefs: PrefsState; ui: UiState };
 
 export function selectPersistedPrefs(state: PersistedSlices): PersistedPrefs {
-  return { locale: state.prefs.locale, productTypeFilter: state.ui.productTypeFilter };
+  return {
+    locale: state.prefs.locale,
+    productTypeFilter: state.ui.productTypeFilter,
+    productSpecificationFilter: state.ui.productSpecificationFilter,
+    productStatusFilter: state.ui.productStatusFilter,
+    productConditionFilter: state.ui.productConditionFilter,
+  };
 }
 
 export function selectPersistedSession(state: PersistedSlices): PersistedSession {

@@ -74,6 +74,16 @@
     "empty": "Продуктов пока нет",
     "typeFilter": "Тип:",
     "allTypes": "Все типы",
+    "specificationFilter": "Спецификация:",
+    "allSpecifications": "Все спецификации",
+    "statusFilter": "Статус:",
+    "allStatuses": "Все статусы",
+    "conditionFilter": "Состояние:",
+    "allConditions": "Все",
+    "condition": {
+      "new": "Новый",
+      "used": "Б / У"
+    },
     "from": "с",
     "to": "по",
     "new": "новый",
