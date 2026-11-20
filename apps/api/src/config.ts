@@ -15,6 +15,7 @@ const envSchema = z
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
     AUTH_RATE_LIMIT: z.coerce.number().int().positive().optional(),
     UPLOADS_DIR: z.string().default(path.resolve("uploads")),
+    WEB_PROXY_TARGET: z.url().optional(),
     IMAGE_MAX_BYTES: z.coerce
       .number()
       .int()

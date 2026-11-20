@@ -14,7 +14,7 @@ export function SocketBridge() {
   const tokenRef = useRef(accessToken);
 
   useEffect(() => {
-    const socket = io(API_URL, { withCredentials: true });
+    const socket = io(API_URL || undefined, { withCredentials: true });
     socketRef.current = socket;
 
     socket.on("connect", () => {
