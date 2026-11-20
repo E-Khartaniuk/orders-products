@@ -6,6 +6,7 @@ import { config } from "./config.js";
 import { prisma } from "./db.js";
 import { createGraphqlMiddleware } from "./graphql/index.js";
 import { UPLOADS_URL_PREFIX } from "./lib/uploads.js";
+import { webProxy } from "./lib/web-proxy.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { requireAuth } from "./middleware/require-auth.js";
 import { authRouter } from "./modules/auth/auth.router.js";
@@ -17,6 +18,7 @@ export function createApp() {
   const app = express();
 
   if (config.NODE_ENV === "production") app.set("trust proxy", 1);
+  if (config.WEB_PROXY_TARGET) app.use(webProxy(config.WEB_PROXY_TARGET));
 
   app.use(
     helmet({

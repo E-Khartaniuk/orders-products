@@ -102,7 +102,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-В CI все три уровня запускаются на каждый PR: unit — в job `check`, интеграционные — с MySQL в service-контейнере, e2e — на стенде, собранном через `docker compose`.
+В CI все три уровня запускаются на каждый PR: unit — в job `check`, интеграционные — с MySQL в service-контейнере, e2e — дважды: на стенде из `docker compose` и на образе одного контейнера для деплоя (см. [Деплой](#деплой)).
 
 ## Оптимизация фронтенда
 
@@ -288,6 +288,28 @@ erDiagram
 - Стили: Bootstrap 5 + SCSS-блоки по БЭМ в `apps/web/src/styles/blocks`.
 - Состояние: Redux Toolkit (UI-фильтры, сессии) и RTK Query (данные API с инвалидацией кеша).
 
+## Деплой
+
+Демо развёрнуто бесплатно: приложение на [Render](https://render.com) (free web service), база — MySQL 8 на [Aiven](https://aiven.io) (free plan).
+
+Для этого есть отдельный образ — корневой [`Dockerfile`](Dockerfile): web и API в одном контейнере, на одном домене. Express отдаёт `/api`, `/uploads` и Socket.io, остальные запросы проксирует на Next.js (`WEB_PROXY_TARGET`). Один домен нужен, чтобы refresh-cookie, WebSocket и service worker работали без кросс-доменных настроек. При старте ([`scripts/start-single.sh`](scripts/start-single.sh)) применяются миграции, а сид заполняет базу, только если она пустая. `docker compose` для локального запуска не меняется.
+
+Ограничения бесплатного тарифа:
+
+- после 15 минут без запросов сервис засыпает, первый запрос после этого идёт около минуты;
+- диск временный: загруженные фото пропадают при перезапуске или новом деплое (данные в MySQL сохраняются).
+
+Как развернуть свою копию:
+
+1. **Aiven** → Create service → MySQL, план Free, регион в Европе. На странице сервиса скопировать Service URI и скачать CA certificate.
+2. **Render** → New → Blueprint → выбрать этот репозиторий. Render прочитает [`render.yaml`](render.yaml) и попросит значения:
+   - `DATABASE_URL` — Service URI из Aiven как есть (`mysql://avnadmin:…@…aivencloud.com:PORT/defaultdb?ssl-mode=REQUIRED`);
+   - `DATABASE_SSL_CA` — содержимое CA-сертификата целиком, вместе со строками `BEGIN`/`END`.
+
+   JWT-секреты Render сгенерирует сам.
+
+3. После сборки приложение откроется по адресу `https://<имя-сервиса>.onrender.com`. Вход: `demo@inventory.local` / `demo12345`. Новые коммиты в `develop` деплоятся автоматически.
+
 ## Git-flow
 
 `main` — стабильные релизы, `develop` — интеграция, `feature/*` — отдельные задачи, вливаются в `develop` через merge.
@@ -307,4 +329,4 @@ erDiagram
 - [x] i18n, lazy loading, WebStorage, charts, maps
 - [x] WebWorkers, PWA, event-driven обновления
 - [x] Unit, интеграционные и e2e тесты
-- [ ] Деплой на VDS
+- [x] Деплой: Render + Aiven MySQL (бесплатные тарифы)
