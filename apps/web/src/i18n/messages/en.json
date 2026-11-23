@@ -118,6 +118,18 @@
       "photoUploadError": "failed to upload the photo",
       "photoSaved": "The product was added, but the photo was not uploaded: {reason}. You can add it later by clicking the thumbnail."
     },
+    "card": {
+      "open": "Open product card {title}",
+      "edit": "Edit",
+      "editTitle": "Edit product",
+      "save": "Save",
+      "error": "Could not save changes",
+      "guarantee": "Guarantee",
+      "order": "Order",
+      "date": "Received",
+      "group": "Group",
+      "user": "User"
+    },
     "delete": {
       "title": "Are you sure you want to delete this product?",
       "error": "Failed to delete the product. Please try again."

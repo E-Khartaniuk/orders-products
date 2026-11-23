@@ -31,32 +31,43 @@ const priceInput = z.object({
   isDefault: z.boolean().default(false),
 });
 
-export const createProductBody = z
-  .object({
-    serialNumber: z.string().trim().min(1).max(64),
-    title: z.string().trim().min(1).max(255),
-    type: z.string().trim().min(1).max(64),
-    specification: z.string().trim().min(1).max(255),
-    isNew: z.boolean().default(true),
-    status: z.enum(PRODUCT_STATUSES).default("FREE"),
+const productFields = z.object({
+  serialNumber: z.string().trim().min(1).max(64),
+  title: z.string().trim().min(1).max(255),
+  type: z.string().trim().min(1).max(64),
+  specification: z.string().trim().min(1).max(255),
+  isNew: z.boolean().default(true),
+  status: z.enum(PRODUCT_STATUSES).default("FREE"),
+  guaranteeStart: z.coerce.date(),
+  guaranteeEnd: z.coerce.date(),
+  prices: z
+    .array(priceInput)
+    .min(1)
+    .refine((prices) => new Set(prices.map((p) => p.symbol)).size === prices.length, {
+      message: "Each currency may appear only once",
+    }),
+});
+
+const guaranteeInOrder = (data: { guaranteeStart: Date; guaranteeEnd: Date }) =>
+  data.guaranteeEnd >= data.guaranteeStart;
+const guaranteeOrderError = () => ({
+  path: ["guaranteeEnd"],
+  message: "Guarantee end must not be earlier than guarantee start",
+});
+
+export const createProductBody = productFields
+  .extend({
     photo: z.url().max(500).nullish(),
-    guaranteeStart: z.coerce.date(),
-    guaranteeEnd: z.coerce.date(),
     date: z.coerce.date().optional(),
     orderId: z.number().int().positive(),
     groupId: z.number().int().positive().nullish(),
-    prices: z
-      .array(priceInput)
-      .min(1)
-      .refine((prices) => new Set(prices.map((p) => p.symbol)).size === prices.length, {
-        message: "Each currency may appear only once",
-      }),
   })
-  .refine((data) => data.guaranteeEnd >= data.guaranteeStart, {
-    path: ["guaranteeEnd"],
-    message: "Guarantee end must not be earlier than guarantee start",
-  });
+  .refine(guaranteeInOrder, guaranteeOrderError());
+
+/** Full replacement of the editable fields; order, photo and dates of receipt are not touched. */
+export const updateProductBody = productFields.refine(guaranteeInOrder, guaranteeOrderError());
 
 export type ListProductsQuery = z.infer<typeof listProductsQuery>;
 export type ListSpecificationsQuery = z.infer<typeof listSpecificationsQuery>;
 export type CreateProductBody = z.infer<typeof createProductBody>;
+export type UpdateProductBody = z.infer<typeof updateProductBody>;

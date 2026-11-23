@@ -6,7 +6,7 @@ import {
   normalizeOrderDetails,
   type OrderDetailsResponse,
 } from "@/lib/graphql";
-import type { CreateOrderPayload, CreateProductPayload } from "@/lib/schemas";
+import type { CreateOrderPayload, CreateProductPayload, UpdateProductPayload } from "@/lib/schemas";
 import type {
   AuthResponse,
   ListResponse,
@@ -146,6 +146,19 @@ export const api = createApi({
         { type: "Order", id: "LIST" },
       ],
     }),
+    updateProduct: build.mutation<
+      Product,
+      { id: number; orderId: number; body: UpdateProductPayload }
+    >({
+      query: ({ id, body }) => ({ url: `/products/${id}`, method: "PATCH", body }),
+      invalidatesTags: (_result, _error, { id, orderId }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+        { type: "Product", id: "TYPES" },
+        { type: "Order", id: orderId },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
     uploadProductPhoto: build.mutation<Product, { id: number; orderId: number; file: File }>({
       query: ({ id, file }) => {
         const body = new FormData();
@@ -189,6 +202,7 @@ export const {
   useGetProductTypesQuery,
   useGetProductSpecificationsQuery,
   useCreateProductMutation,
+  useUpdateProductMutation,
   useDeleteProductMutation,
   useUploadProductPhotoMutation,
   useDeleteProductPhotoMutation,
