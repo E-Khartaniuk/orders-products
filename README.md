@@ -315,7 +315,7 @@ erDiagram
 
 ## Git-flow
 
-`main` — стабильные релизы, `develop` — интеграция, `feature/*` — отдельные задачи, вливаются в `develop` через merge.
+`main` — стабильные релизы (деплоятся на Render), `develop` — интеграция. `feature/*` и `fix/*` — отдельные задачи и исправления, вливаются в `develop` через pull request; `release/*` — подготовка версии перед слиянием в `main`.
 
 ## Roadmap
 
@@ -332,4 +332,3 @@ erDiagram
 - [x] i18n, lazy loading, WebStorage, charts, maps
 - [x] WebWorkers, PWA, event-driven обновления
 - [x] Unit, интеграционные и e2e тесты
-- [x] Деплой: Render + Aiven MySQL (бесплатные тарифы)
