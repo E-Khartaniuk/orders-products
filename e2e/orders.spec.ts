@@ -48,9 +48,29 @@ test("creates an order, adds and removes a product, then deletes the order", asy
   const orderRow = page.locator(".order-row", { hasText: orderTitle });
   await expect(orderRow.locator(".order-row__count-value")).toHaveText("1");
 
-  await details.getByRole("button", { name: `Удалить продукт ${productTitle}` }).click();
+  // The product card shows every field and edits them in place.
+  const editedTitle = `${productTitle} edited`;
+  await details.getByRole("button", { name: `Открыть карточку продукта ${productTitle}` }).click();
+  const card = page.getByRole("dialog", { name: productTitle });
+  await expect(card).toContainText("27 inch, 4K");
+  await expect(card).toContainText(orderTitle);
+  await card.getByRole("button", { name: "Редактировать" }).click();
+
+  const editDialog = page.getByRole("dialog", { name: "Редактирование продукта" });
+  await expect(editDialog.locator("#product-edit-title")).toHaveValue(productTitle);
+  await editDialog.locator("#product-edit-title").fill(editedTitle);
+  await editDialog.locator("#product-edit-status").selectOption("IN_REPAIR");
+  await editDialog.getByRole("button", { name: "Сохранить" }).click();
+
+  const savedCard = page.getByRole("dialog", { name: editedTitle });
+  await expect(savedCard).toContainText("В ремонте");
+  await page.keyboard.press("Escape");
+  await expect(savedCard).toBeHidden();
+  await expect(details).toContainText(editedTitle);
+
+  await details.getByRole("button", { name: `Удалить продукт ${editedTitle}` }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Удалить" }).click();
-  await expect(details).not.toContainText(productTitle);
+  await expect(details).not.toContainText(editedTitle);
   await expect(orderRow.locator(".order-row__count-value")).toHaveText("0");
 
   // The compact list next to open details hides row actions, as in the mockup.

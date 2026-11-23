@@ -20,6 +20,11 @@ const ProductPhotoDialog = dynamic(
     import("@/components/products/ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
   { ssr: false },
 );
+const ProductCardDialog = dynamic(
+  () =>
+    import("@/components/products/ProductCardDialog").then((module) => module.ProductCardDialog),
+  { ssr: false },
+);
 const DeleteProductDialog = dynamic(
   () =>
     import("@/components/products/DeleteProductDialog").then(
@@ -47,6 +52,8 @@ export function OrderDetailsPanel() {
   const closeDialog = useCallback(() => setProductToDelete(null), []);
   const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
   const closePhoto = useCallback(() => setPhotoProduct(null), []);
+  const [cardProduct, setCardProduct] = useState<Product | null>(null);
+  const closeCard = useCallback(() => setCardProduct(null), []);
   const [addOpen, setAddOpen] = useState(false);
   const closeAdd = useCallback(() => setAddOpen(false), []);
 
@@ -95,6 +102,7 @@ export function OrderDetailsPanel() {
                   product={product}
                   onDelete={setProductToDelete}
                   onPhoto={setPhotoProduct}
+                  onOpen={setCardProduct}
                 />
               ))}
             </ul>
@@ -107,6 +115,9 @@ export function OrderDetailsPanel() {
       </LazyMount>
       <LazyMount when={photoProduct !== null}>
         <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      </LazyMount>
+      <LazyMount when={cardProduct !== null}>
+        <ProductCardDialog product={cardProduct} onClose={closeCard} />
       </LazyMount>
       <LazyMount when={addOpen}>
         <AddProductDialog

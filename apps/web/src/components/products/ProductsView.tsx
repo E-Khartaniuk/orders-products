@@ -18,6 +18,10 @@ const ProductPhotoDialog = dynamic(
   () => import("./ProductPhotoDialog").then((module) => module.ProductPhotoDialog),
   { ssr: false },
 );
+const ProductCardDialog = dynamic(
+  () => import("./ProductCardDialog").then((module) => module.ProductCardDialog),
+  { ssr: false },
+);
 const DeleteProductDialog = dynamic(
   () => import("./DeleteProductDialog").then((module) => module.DeleteProductDialog),
   { ssr: false },
@@ -44,6 +48,8 @@ export function ProductsView() {
   const closeDialog = useCallback(() => setProductToDelete(null), []);
   const [photoProduct, setPhotoProduct] = useState<Product | null>(null);
   const closePhoto = useCallback(() => setPhotoProduct(null), []);
+  const [cardProduct, setCardProduct] = useState<Product | null>(null);
+  const closeCard = useCallback(() => setCardProduct(null), []);
 
   const filtered = Boolean(type || specification || status || condition || search);
 
@@ -68,6 +74,7 @@ export function ProductsView() {
                     product={product}
                     onDelete={setProductToDelete}
                     onPhoto={setPhotoProduct}
+                    onOpen={setCardProduct}
                   />
                 </li>
               ))}
@@ -81,6 +88,9 @@ export function ProductsView() {
       </LazyMount>
       <LazyMount when={photoProduct !== null}>
         <ProductPhotoDialog product={photoProduct} onClose={closePhoto} />
+      </LazyMount>
+      <LazyMount when={cardProduct !== null}>
+        <ProductCardDialog product={cardProduct} onClose={closeCard} />
       </LazyMount>
     </>
   );

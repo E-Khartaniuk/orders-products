@@ -12,9 +12,10 @@ type ProductRowProps = {
   product: Product;
   onDelete: (product: Product) => void;
   onPhoto: (product: Product) => void;
+  onOpen: (product: Product) => void;
 };
 
-export function ProductRow({ product, onDelete, onPhoto }: ProductRowProps) {
+export function ProductRow({ product, onDelete, onPhoto, onOpen }: ProductRowProps) {
   const t = useTranslations("products");
   const locale = useLocale();
 
@@ -29,9 +30,15 @@ export function ProductRow({ product, onDelete, onPhoto }: ProductRowProps) {
         label={t("photo.open", { title: product.title })}
       />
       <div className="min-w-0">
-        <span className="product-row__title" title={product.title}>
+        <button
+          type="button"
+          className="product-row__title"
+          title={product.title}
+          aria-label={t("card.open", { title: product.title })}
+          onClick={() => onOpen(product)}
+        >
           {product.title}
-        </span>
+        </button>
         <div className="product-row__serial">{product.serialNumber}</div>
       </div>
       <span className="product-row__type" title={product.type}>
