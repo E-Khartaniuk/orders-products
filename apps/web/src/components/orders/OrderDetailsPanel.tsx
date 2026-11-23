@@ -77,7 +77,9 @@ export function OrderDetailsPanel() {
       {order && (
         <>
           <header className="order-details__header">
-            <h2 className="order-details__title">{order.title}</h2>
+            <h2 className="order-details__title" title={order.title}>
+              {order.title}
+            </h2>
             <button type="button" className="order-details__add" onClick={() => setAddOpen(true)}>
               <i className="bi bi-plus-circle-fill" aria-hidden="true" />
               {t("addProduct")}
