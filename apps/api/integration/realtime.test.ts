@@ -61,6 +61,11 @@ describe("realtime over Socket.io", () => {
     expect(await oneLeft).toBe(1);
   });
 
+  it("drops lost connections within ~15 s via the heartbeat", () => {
+    const { pingInterval, pingTimeout } = sockets.io.engine.opts;
+    expect((pingInterval ?? Infinity) + (pingTimeout ?? Infinity)).toBeLessThanOrEqual(15_000);
+  });
+
   it("delivers domain events from REST writes only to authenticated sockets", async () => {
     const member = await open();
     const stranger = await open();
