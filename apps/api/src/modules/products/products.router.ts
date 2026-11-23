@@ -6,9 +6,11 @@ import {
   listProductsQuery,
   listSpecificationsQuery,
   productIdParams,
+  updateProductBody,
   type CreateProductBody,
   type ListProductsQuery,
   type ListSpecificationsQuery,
+  type UpdateProductBody,
 } from "./products.schemas.js";
 import * as productsService from "./products.service.js";
 
@@ -42,6 +44,19 @@ productsRouter.post("/", validate({ body: createProductBody }), async (_req, res
   const { body } = res.locals.validated as Validated<unknown, unknown, CreateProductBody>;
   res.status(201).json(await productsService.createProduct(body));
 });
+
+productsRouter.patch(
+  "/:id",
+  validate({ params: productIdParams, body: updateProductBody }),
+  async (_req, res) => {
+    const { params, body } = res.locals.validated as Validated<
+      { id: number },
+      unknown,
+      UpdateProductBody
+    >;
+    res.json(await productsService.updateProduct(params.id, body));
+  },
+);
 
 productsRouter.delete("/:id", validate({ params: productIdParams }), async (_req, res) => {
   const { params } = res.locals.validated as Validated<{ id: number }>;

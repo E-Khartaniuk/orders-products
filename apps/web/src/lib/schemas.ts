@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ProductStatus } from "@/types/api";
+import type { Money, Product, ProductStatus } from "@/types/api";
 import type { ValidationT } from "./validation";
 import { findWarehouse } from "./warehouses";
 
@@ -80,8 +80,11 @@ export type ProductFormSchema = ReturnType<typeof createProductFormSchema>;
 export type ProductFormValues = z.input<ProductFormSchema>;
 
 export function toCreateProductPayload(values: z.output<ProductFormSchema>, orderId: number) {
+  return { orderId, ...toUpdateProductPayload(values) };
+}
+
+export function toUpdateProductPayload(values: z.output<ProductFormSchema>) {
   return {
-    orderId,
     serialNumber: values.serialNumber,
     title: values.title,
     type: values.type,
@@ -97,5 +100,24 @@ export function toCreateProductPayload(values: z.output<ProductFormSchema>, orde
   };
 }
 
+/** Pre-fills the product form with an existing product (dates in the user's local time zone). */
+export function productToFormValues(product: Product): ProductFormValues {
+  const price = (symbol: Money["symbol"]) =>
+    String(product.prices.find((item) => item.symbol === symbol)?.value ?? "");
+  return {
+    serialNumber: product.serialNumber,
+    title: product.title,
+    type: product.type,
+    specification: product.specification,
+    status: product.status,
+    condition: product.isNew ? "new" : "used",
+    guaranteeStart: todayInputValue(new Date(product.guarantee.start)),
+    guaranteeEnd: todayInputValue(new Date(product.guarantee.end)),
+    priceUsd: price("USD"),
+    priceUah: price("UAH"),
+  };
+}
+
 export type CreateOrderPayload = ReturnType<typeof toCreateOrderPayload>;
 export type CreateProductPayload = ReturnType<typeof toCreateProductPayload>;
+export type UpdateProductPayload = ReturnType<typeof toUpdateProductPayload>;

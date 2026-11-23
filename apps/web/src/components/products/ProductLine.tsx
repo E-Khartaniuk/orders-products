@@ -10,10 +10,17 @@ type ProductLineProps = {
   product: Product;
   onDelete?: (product: Product) => void;
   onPhoto?: (product: Product) => void;
+  onOpen?: (product: Product) => void;
   as?: "li" | "div";
 };
 
-export function ProductLine({ product, onDelete, onPhoto, as: Tag = "li" }: ProductLineProps) {
+export function ProductLine({
+  product,
+  onDelete,
+  onPhoto,
+  onOpen,
+  as: Tag = "li",
+}: ProductLineProps) {
   const t = useTranslations("products");
   const isStatic = !onDelete;
 
@@ -28,9 +35,21 @@ export function ProductLine({ product, onDelete, onPhoto, as: Tag = "li" }: Prod
         label={t("photo.open", { title: product.title })}
       />
       <div className="product-line__info">
-        <span className="product-line__title" title={product.title}>
-          {product.title}
-        </span>
+        {onOpen ? (
+          <button
+            type="button"
+            className="product-line__title"
+            title={product.title}
+            aria-label={t("card.open", { title: product.title })}
+            onClick={() => onOpen(product)}
+          >
+            {product.title}
+          </button>
+        ) : (
+          <span className="product-line__title" title={product.title}>
+            {product.title}
+          </span>
+        )}
         <div className="product-line__serial">{product.serialNumber}</div>
       </div>
       {!isStatic && (

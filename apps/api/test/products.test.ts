@@ -152,6 +152,57 @@ describe("POST /api/products", () => {
   });
 });
 
+describe("PATCH /api/products/:id", () => {
+  const { orderId: _orderId, ...validUpdate } = validProduct;
+
+  it("updates fields and replaces prices", async () => {
+    prismaMock.product.update.mockResolvedValue(sampleProductRecord);
+
+    const res = await api.patch("/api/products/10").send({ ...validUpdate, status: "IN_REPAIR" });
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.product.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 10 },
+        data: expect.objectContaining({
+          status: "IN_REPAIR",
+          prices: { deleteMany: {}, create: expect.arrayContaining([expect.anything()]) },
+        }),
+      }),
+    );
+  });
+
+  it("does not let the order be changed", async () => {
+    prismaMock.product.update.mockResolvedValue(sampleProductRecord);
+
+    await api.patch("/api/products/10").send({ ...validUpdate, orderId: 99 });
+
+    const { data } = prismaMock.product.update.mock.calls[0][0];
+    expect(data).not.toHaveProperty("orderId");
+  });
+
+  it("rejects guarantee end before start", async () => {
+    const res = await api
+      .patch("/api/products/10")
+      .send({ ...validUpdate, guaranteeEnd: "2023-01-01" });
+
+    expect(res.status).toBe(400);
+    expect(prismaMock.product.update).not.toHaveBeenCalled();
+  });
+
+  it("responds 404 for a missing product", async () => {
+    prismaMock.product.update.mockRejectedValue(prismaError("P2025"));
+
+    expect((await api.patch("/api/products/999").send(validUpdate)).status).toBe(404);
+  });
+
+  it("responds 409 on duplicate serial number", async () => {
+    prismaMock.product.update.mockRejectedValue(prismaError("P2002"));
+
+    expect((await api.patch("/api/products/10").send(validUpdate)).status).toBe(409);
+  });
+});
+
 describe("DELETE /api/products/:id", () => {
   it("deletes a product", async () => {
     prismaMock.product.delete.mockResolvedValue(sampleProductRecord);

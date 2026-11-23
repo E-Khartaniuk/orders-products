@@ -1,0 +1,55 @@
+@use "../tokens" as *;
+
+.product-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  padding-bottom: 20px;
+
+  &__photo .product-thumb {
+    width: 100%;
+    height: 165px;
+  }
+
+  &__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    margin: 0;
+  }
+
+  &__field {
+    min-width: 0;
+
+    &--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__label {
+    @include caption;
+    margin-bottom: 2px;
+    font-weight: 400;
+  }
+
+  &__value {
+    margin: 0;
+    color: $color-text;
+    font-size: 0.9375rem;
+    overflow-wrap: anywhere;
+  }
+
+  &__link {
+    @include underline-link;
+  }
+
+  @media (max-width: ($breakpoint-md - 1px)) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+
+    &__photo .product-thumb {
+      height: 200px;
+    }
+  }
+}

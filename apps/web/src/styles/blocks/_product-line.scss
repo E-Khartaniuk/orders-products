@@ -31,6 +31,14 @@
     font-size: 0.9375rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+    // Rendered as a <button> when it opens the product card.
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    line-height: inherit;
+    text-align: left;
+    vertical-align: top;
     @include underline-link;
   }
 

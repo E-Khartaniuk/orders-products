@@ -7,6 +7,7 @@ import type {
   CreateProductBody,
   ListProductsQuery,
   ListSpecificationsQuery,
+  UpdateProductBody,
 } from "./products.schemas.js";
 
 export async function listProducts(query: ListProductsQuery) {
@@ -89,6 +90,21 @@ export async function createProduct(input: CreateProductBody) {
   });
 
   publish({ type: "product.created", productId: product.id, orderId: product.orderId });
+  return toProductDto(product);
+}
+
+export async function updateProduct(id: number, input: UpdateProductBody) {
+  const { prices, ...data } = input;
+  const product = await prisma.product.update({
+    where: { id },
+    data: {
+      ...data,
+      prices: { deleteMany: {}, create: prices },
+    },
+    include: productInclude,
+  });
+
+  publish({ type: "product.updated", productId: product.id, orderId: product.orderId });
   return toProductDto(product);
 }
 
