@@ -14,7 +14,14 @@ export function SocketBridge() {
   const tokenRef = useRef(accessToken);
 
   useEffect(() => {
-    const socket = io(API_URL || undefined, { withCredentials: true });
+    // WebSocket first: with the default polling-then-upgrade handshake, a tab
+    // closed during the upgrade stays counted until the heartbeat times out.
+    // Long-polling stays as a fallback where WebSocket is blocked.
+    const socket = io(API_URL || undefined, {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
+    });
     socketRef.current = socket;
 
     socket.on("connect", () => {
